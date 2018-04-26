@@ -1,0 +1,57 @@
+<header class="site-header" role="banner">
+
+  <div class="wrapper">
+    {%- assign default_paths = site.pages | map: "path" -%}
+    {%- assign page_paths = site.header_pages | default: default_paths -%}
+    <a class="site-title" rel="author" href="{{ "/" | relative_url }}">{{ site.title | escape }}</a>
+
+    {%- if page.layout == "home" -%}
+      <div class="wrapper nav-wrapper">
+        <nav class="site-nav">
+          <div class="trigger">
+            <p>
+            {%- for coll in site.collections -%}
+              {%- if coll.label == "posts" -%}
+                {%- continue -%}
+              {%- endif -%}
+              <span class="nav-anchor">
+                <a class="coll-nav" href="{{ coll.base_url }}">{{ coll.title }}</a>
+              </span>
+            {%- endfor -%}
+            </p>
+          </div>
+        </nav>
+      </div>
+    {%- elsif page.layout == "page" -%}
+      {%- case page.collection -%}
+        {%- when 'presto' -%}
+          {%- assign coll = site.presto -%}
+        {%- when 'git' -%}
+          {%- assign coll = site.git -%}
+        {%- when 'python' -%}
+          {%- assign coll = site.python -%}
+      {%- endcase -%}
+
+      <div class="wrapper nav-wrapper">
+        <nav class="site-nav">
+          <div class="trigger">
+            <p>
+              {%- for doc in coll -%}
+                <span class="nav-anchor">
+                  <a class="doc-nav" href="{{doc.url}}">{{ doc.short_title }}</a>
+                </span>
+              {%- endfor %}
+              {%- assign counter = counter + 1 -%}
+            </p>
+          </div>
+        </nav>
+      </div>
+    {%- else -%}
+      <div>OTHER</div>
+    {%- endif -%}
+
+
+  </div>
+  <div>
+  </div>
+</header>
