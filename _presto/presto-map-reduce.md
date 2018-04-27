@@ -19,20 +19,20 @@ Mapping operations take a single row, and produce 0, 1, or many rows. These are
 very parallelizable -- since the operations takes only one row, you can simply
 split the rows among different workers.
 
-* **Filter**: A filter operation takes a predicate, and for each row yields the
-  row if the predicate is true, and yields nothing otherwise. These correspond
-  to `WHERE` and `HAVING` clauses.
+* **Filter**: A filter operation takes a predicate and applies it to each row.
+  If the predicate returns true it yields the row, otherwise it yields nothing.
+  These correspond to `WHERE` and `HAVING` clauses.
 
-* **Projection**: A projection operation takes a row and map function, and
-  returns a row transformed by the map function.  This can drop, rename,
-  combine, or transform columns.  The column expression in the `SELECT`
-  statement encodes the projection operation.
+* **Projection**: A projection operation takes a map function and applies it to
+  each row.  It yields the transformed row.  This can drop, rename, combine, or
+  transform columns.  The column expression in the `SELECT` statement encodes
+  the projection operation.
 
-* **Unnest**: An unnest operation takes a row, and produces `N` rows.  In
+* **Unnest**: An unnest operation takes a row, and yields `N` rows.  In
   Presto, this is from a `CROSS JOIN UNNEST` statement that will expand an array
   or map into rows for each entry.
 
-If you have a sequence of mapping operations, you can combine them into one
+Given a sequence of mapping operations, Presto combines them into one
 composed operator called a _fragment_.  Multiple workers can perform this
 fragment, parallelizing the stream processing.
 
@@ -81,6 +81,11 @@ These operators would all be composed into a single fragment.
 
 Reducing Operations
 ===================
+While mapping operations can be easily parallelized, reducing operations (like
+`GROUP BY`) require more effort to make efficient.  Luckily, Presto does most of
+this work.  This section will first describe the simple-but-inefficient method,
+and then successive optimizations that Presto does for us.
+
 If there is a `GROUP BY` clause, multiple rows (with the same group key) will be
 aggregated into one.  In the simplest case, where there are no aggregation
 functions (like `SUM()`, `COUNT()`, etc), the worker will just store the row in
@@ -121,11 +126,11 @@ grouping workers will get a (relatively slow) stream of partial sums, which they
 will aggregate to the final sums.
 
 Often, a more complex function can be made partially aggregable with an
-intermediate representation.  Consider the arithmetic mean operator `avg`. You
-cannot simply average different slice of data, then average the averages.
-However, you can partially aggregate into a structure `{key:, sum:, count:}`,
-and then aggregate the partial aggregations.  Any function that can be
-represented in this way can be efficiently aggregated in parallel.
+intermediate representation.  Consider the arithmetic mean operator `avg`.
+Presto cannot simply average different slice of data and then average the
+averages. Instead, Presto partially aggregates into a structure `{key:, sum:,
+count:}`, and then aggregates the partial aggregations.  Any function that can
+be represented in this way can be efficiently aggregated in parallel.
 
 Intermediate Representation Example
 ===================================
@@ -134,8 +139,20 @@ to have a single node at the end, collecting all values of `x` into a set, then
 evaluating the size of the set.  The first optimization is that the upstream
 worker nodes could maintain their own partial set.  The final node would union
 all these sets, returning the size as above.  Although parallelizable, the
-storage requirements still scale as `O(num_outputs)`.  This is as good as you
-can get if perfect accuracy is desired.
+storage requirements still scale as `O(num_outputs)`.
+
+Presto implements `COUNT(DISTINCT X)` as
+```sql
+SELECT COUNT(*) FROM (
+  SELECT x
+  FROM t
+  GROUP BY x
+)
+```
+With this, Presto partitions the inner query across workers by hashing `x`.
+Each worker stores the set of distinct `x` for a partition, counts it, then
+passes the count to the final aggregator.  While the total storage is still
+`O(num_outputs)`, it's distributed over many machines.
 
 However, if a small approximation is acceptable, vastly more performant options
 are available.  The function `approx_distinct` uses a fast, constant-space,

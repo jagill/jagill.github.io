@@ -28,15 +28,20 @@ expects a connector to respect.
   directory of CSV files.  Anything that can be a logical collection of
   tables can be a schema.
 * **Catalog**: A catalog is a collection of schemas.  A database cluster is
-  an example.  A warehouse that had both MySQL and Hive datastores would
-  likely have one catalog for each, but it's possible that there are multiple
-  catalogs for a given datastore type.  For example, perhaps there is a
-  separate clusters for user-facing MySQL databases and warehouse MySQL
-  databases.
+  an example.  Each catalog has one connector, so the schemas must be of the
+  same datastore type.
 
-A fully-qualified tablename is of the form `{catalog}.{schema}.{table}`, like
+A warehouse that had both MySQL and Hive clusters would need (at minimum) two
+catalogs, one for MySQL and one for Hive.  While each catalog has one connector,
+it's possible that two catalogs can use the same connector type to access the
+same datastore type. Consider the case where there are separate clusters for
+user-facing MySQL databases and warehouse MySQL databases.  You could make two
+catalogs, `user-mysql` and `warehouse-mysql`, each of which uses the MySQL
+connector, initialized with different parameters.
+
+A fully-qualified table name is of the form `{catalog}.{schema}.{table}`, like
 `hive.warehouse.dim_orders` or `mysql.user_data.addresses`.  A given Presto
-session can set default catalogs and schemas, allowing just the tablename to be
+session can set default catalogs and schemas, allowing just the table name to be
 used.
 
 Connectors
