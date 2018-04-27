@@ -1,6 +1,6 @@
 ---
-short_title: "Git Overview"
-title: "Git Overview"
+short_title: "Second Look: Git"
+title: "Second Look: Git"
 ---
 
 Articles

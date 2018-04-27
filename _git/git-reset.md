@@ -1,5 +1,5 @@
 ---
-short_title: "Git Reset"
+short_title: "Reset"
 title: "Git Reset"
 ---
 

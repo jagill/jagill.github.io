@@ -1,5 +1,5 @@
 ---
-short_title: "Git Remote Branches"
+short_title: "Remote Branches"
 title: "Git Remote Branches"
 ---
 
