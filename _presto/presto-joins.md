@@ -186,6 +186,20 @@ ON t1.c = t2.d
 WHERE t1.a < t2.b
 ```
 
+Chained Joins
+=============
+A Chained Join is multiple joins in a row:
+
+```sql
+SELECT *
+FROM table1
+JOIN table2 ON table1.a = table2.a
+JOIN table3 ON table1.a = table3.a
+```
+
+Presto will do the joins one at a time.  First `table1` with `table2`, then the
+resultant table with `table3`, and so on.
+
 
 [Presto Overview]: index "Presto Overview"
 [Presto Map-Reduce]: presto-map-reduce "Presto Map-Reduce"
