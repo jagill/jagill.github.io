@@ -39,9 +39,12 @@ and passing data to other machines via sockets.
 
 This has several important consequences:
 1. Since there is no disk IO, Presto is _fast_.
+
 2. Since it cannot store data to disk, Presto is _memory limited_.
+
 3. Presto only reads enough data to fill the pipeline; if one step stops,
    everything upstream stops too.
+
 4. Since it streams data, it cannot inspect data for optimization.  Each stage
    sees each row only once.
 
@@ -55,6 +58,12 @@ architecture.
 3. [Presto Joins]
 4. [Presto Data Flow]
 
+Acknowledgements
+================
+These articles would have been impossible without the help of Presto team members
+Maria Basmanova ([@mbasmanova](https://github.com/mbasmanova)),
+Rebecca Schlussel ([@rschlussel](https://github.com/rschlussel)), and
+Andrii Rosa ([@arhimondr](https://github.com/arhimondr)).
 
 [Presto Overview]: index "Presto Overview"
 [Presto Map-Reduce]: presto-map-reduce "Presto Map-Reduce"
