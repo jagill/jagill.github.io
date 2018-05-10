@@ -83,7 +83,24 @@ rows equally, for any datasource.  In particular, this means that a single query
 can get rows from different databases, or even different data sources (MySQL and
 Hive, for example).
 
-**INSERT EXAMPLE**
+In Presto, it's possible to do the following query, which reads from two
+different data sources, and writes to a different database.
+
+```sql
+INSERT INTO mysql.metrics.ranking
+  customer_id,
+  customer_ranking,
+  date
+SELECT
+  mysql_customers.customer_id AS customer_id,
+  hive_customers.customer_ranking AS customer_ranking,
+  current_date() AS date
+FROM
+  hive.warehouse.customer_statistics AS hive_customers
+JOIN
+  mysql.users.customers AS mysql_customers
+ON mysql_customers.customer_id = hive_customers.customer_id
+```
 
 Writing output
 ==============

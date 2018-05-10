@@ -64,7 +64,7 @@ workers.  If the build table is much smaller than the prop table, this is
 extremely fast and efficient, but requires the build table to be able to
 fit into memory.
 
-**Insert cool diagram**
+![Broadcast Join Diagram](/assets/BroadcastJoin.svg "Broadcast Join Diagram")
 
 Partitioned Joins
 =================
@@ -76,7 +76,7 @@ putting the entry with `hash(join_key) % N == k` on worker `k`.  We direct the
 streaming rows in the same fashion, which ensures the build table rows with a
 given join key get matched with all streaming rows of the same key.
 
-**Insert cool diagram**
+![Partitioned Join Diagram](/assets/PartitionedJoin.svg "Partitioned Join Diagram")
 
 Skew
 ====
