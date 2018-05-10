@@ -1,6 +1,7 @@
 ---
-short_title: "Joins"
 title: "Presto Joins"
+short_title: "Joins"
+order: 3
 ---
 
 In Presto, most joins are done by making a hash table of the right-hand table

@@ -1,6 +1,7 @@
 ---
-short_title:  "Map-Reduce"
 title:  "Presto Map-Reduce"
+short_title:  "Map-Reduce"
+order: 2
 ---
 
 Viewed from afar, the query engine consumes one or more input streams of rows,

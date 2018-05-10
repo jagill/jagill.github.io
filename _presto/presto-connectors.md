@@ -1,6 +1,7 @@
 ---
-short_title:  "Connectors"
 title:  "Presto Connectors"
+short_title:  "Connectors"
+order: 1
 ---
 
 Presto is a SQL query engine, one that ultimately understands how to consume one

@@ -1,6 +1,7 @@
 ---
-short_title:  "Second Look: Presto"
 title:  "Second Look: Presto"
+short_title:  "Second Look: Presto"
+order: 0
 ---
 
 Presto is a popular and highly performant SQL query engine that connects to a

@@ -1,6 +1,7 @@
 ---
-short_title: "Reset"
 title: "Git Reset"
+short_title: "Reset"
+order: 2
 ---
 
 # git-reset

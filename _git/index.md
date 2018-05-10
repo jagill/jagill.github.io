@@ -1,6 +1,7 @@
 ---
-short_title: "Second Look: Git"
 title: "Second Look: Git"
+short_title: "Second Look: Git"
+order: 0
 ---
 
 Articles

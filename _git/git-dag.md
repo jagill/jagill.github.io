@@ -1,6 +1,7 @@
 ---
-short_title:  "Commit Dag"
 title:  "Git Commit Dag"
+short_title:  "Commit Dag"
+order: 1
 ---
 
 

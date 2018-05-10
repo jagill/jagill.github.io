@@ -1,6 +1,7 @@
 ---
-short_title:  "Data Flow"
 title:  "Presto Data Flow"
+short_title:  "Data Flow"
+order: 4
 ---
 
 When a client submits a query to Presto, it connects to a _coordinator_ which

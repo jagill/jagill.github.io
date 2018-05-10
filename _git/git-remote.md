@@ -1,6 +1,7 @@
 ---
-short_title: "Remote Branches"
 title: "Git Remote Branches"
+short_title: "Remote Branches"
+order: 3
 ---
 
 Git Remote Branches

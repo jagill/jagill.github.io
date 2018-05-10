@@ -36,7 +36,8 @@
         <nav class="site-nav">
           <div class="trigger">
             <p>
-              {%- for doc in coll -%}
+              {%- assign docs = coll | sort: 'order' -%}
+              {%- for doc in docs -%}
                 <span class="nav-anchor">
                   <a class="doc-nav" href="{{doc.url}}">{{ doc.short_title }}</a>
                 </span>
