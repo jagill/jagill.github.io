@@ -62,9 +62,9 @@ architecture.
 Acknowledgements
 ================
 These articles would have been impossible without the help of Presto team members
-Maria Basmanova ([@mbasmanova](https://github.com/mbasmanova)),
-Rebecca Schlussel ([@rschlussel](https://github.com/rschlussel)), and
-Andrii Rosa ([@arhimondr](https://github.com/arhimondr)).
+Maria Basmanova ([<svg class="svg-icon"><use xlink:href="{{ '/assets/minima-social-icons.svg#github' | relative_url }}"></use></svg>mbasmanova](https://github.com/mbasmanova)),
+Rebecca Schlussel ([<svg class="svg-icon"><use xlink:href="{{ '/assets/minima-social-icons.svg#github' | relative_url }}"></use></svg>rschlussel](https://github.com/rschlussel)), and
+Andrii Rosa ([<svg class="svg-icon"><use xlink:href="{{ '/assets/minima-social-icons.svg#github' | relative_url }}"></use></svg>arhimondr](https://github.com/arhimondr)).
 
 [Presto Overview]: index "Presto Overview"
 [Presto Map-Reduce]: presto-map-reduce "Presto Map-Reduce"
