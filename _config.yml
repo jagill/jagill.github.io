@@ -13,6 +13,7 @@ description: >- # this means to ignore newlines until "baseurl:"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://jagill.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: jagill
+google_analytics: UA-76985654-1
 
 collections:
   presto:
