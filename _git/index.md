@@ -1,6 +1,6 @@
 ---
-title: "Second Look: Git"
-short_title: "Second Look: Git"
+title:  "A Journeyman's Guide to Git"
+short_title:  "Journeyman Guide: Git"
 order: 0
 ---
 

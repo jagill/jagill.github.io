@@ -1,14 +1,15 @@
 ---
 layout: home
-title:  "Second Looks: Some technical explorations"
+title:  "Journeyman Guides: Some technical explorations"
 ---
 
-Second Looks are writings meant for the "Journeyman" audience: people who know
-how and why to use a tool, but want a deeper understanding about a particular
-aspect.  Developing a mental model of how a tool works (even simplified!) allows
-one to reason through novel scenarios and find more effective and efficient
-solutions. In these articles, I'll explore aspects of some tools I use, building
-up these types of mental models.
+These guides are writings meant for the
+"[Journeyman](https://en.wikipedia.org/wiki/Journeyman)" audience: people who
+know how and why to use a tool, but want a deeper understanding about a
+particular aspect.  Developing a mental model of how a tool works (even
+simplified!) allows one to reason through novel scenarios and find more
+effective and efficient solutions. In these articles, I'll explore aspects of
+some tools I use, building up these types of mental models.
 
 Git is a powerful version control system, but the mental model can be complex
 (what is a fast-forward merge?  What does `git reset --soft` do anyway?).  In

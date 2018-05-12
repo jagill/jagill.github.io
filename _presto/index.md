@@ -1,6 +1,6 @@
 ---
-title:  "Second Look: Presto"
-short_title:  "Second Look: Presto"
+title:  "A Journeyman's Guide to Presto"
+short_title:  "Journeyman Guide: Presto"
 order: 0
 ---
 

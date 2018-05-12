@@ -1,44 +1,36 @@
 # Welcome to Jekyll!
 #
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that. If you find
-# yourself editing this file very often, consider using Jekyll's data files
-# feature for the data you need to update frequently.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
-
 # Site settings
 # These are used to personalize your new site. If you look in the HTML files,
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: "Second Looks: Some technical explorations"
+title: "Journeyman Guides: Some technical explorations"
 author: James Gill
 # email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   Technical explorations of some interesting and useful topics.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://jagill.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: jagill
 
 collections:
   presto:
-    long_title: "Second Look: Presto"
+    long_title: "A Journeyman's Guide to Presto"
     title: Presto
     output: true
     layout: page
     permalink: /:collection/:name
     base_url: /presto/
   git:
-    long_title: "Second Look: Git"
+    long_title: "A Journeyman's Guide to Git"
     title: Git
     output: true
     layout: page
     permalink: /:collection/:name
     base_url: /git/
   # python:
-  #   long_title: "Second Look: Python"
+  #   long_title: "A Journeyman's Guide to Python"
   #   title: Python
   #   output: true
   #   layout: page
@@ -59,7 +51,7 @@ defaults:
     values:
       layout: page
       categories: git
-      collection_title: "Second Look: Git"
+      collection_title: "Journeyman's Guide: Git"
 
   - scope:
       path: ""
@@ -67,7 +59,7 @@ defaults:
     values:
       layout: page
       categories: python
-      collection_title: "Second Look: Python"
+      collection_title: "Journeyman's Guide: Python"
 
   - scope:
       path: ""
@@ -75,7 +67,7 @@ defaults:
     values:
       layout: page
       categories: presto
-      collection_title: "Second Look: Presto"
+      collection_title: "Journeyman's Guide: Presto"
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
