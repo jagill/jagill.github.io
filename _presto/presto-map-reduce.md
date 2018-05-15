@@ -33,9 +33,8 @@ split the rows among different workers.
   Presto, this is from a `CROSS JOIN UNNEST` statement that will expand an array
   or map into rows for each entry.
 
-Given a sequence of mapping operations, Presto combines them into one
-composed operator called a _fragment_.  Multiple workers can perform this
-fragment, parallelizing the stream processing.
+Given a sequence of mapping operations, Presto combines them into a _fragment_.
+Multiple workers can perform this fragment, parallelizing the stream processing.
 
 For example, let's consider the table `orders`:
 
