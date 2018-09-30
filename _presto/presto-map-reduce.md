@@ -163,10 +163,11 @@ the final node can combine these to the final estimate.
 
 Sorting Operations
 ==================
-SQL also has the `ORDER BY` clause.  In the current implementation, a single
-worker needs to hold all the rows in memory, which it then sorts.  This means
-that `ORDER BY` on large datasets may lead to an out of memory error.
-
+SQL also has the `ORDER BY` clause.  In the current implementation, by default
+the merge is performed on a single worker.  This may lead to a OOM error for
+large datasets.  Distributed merge can be enabled by the `distributed_sort`
+session parameter.  In distributed sort, each worker sorts a part of the data
+and sends it to a worker for a final merge sort.
 
 
 [Presto Overview]: index "Presto Overview"
