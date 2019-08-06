@@ -44,12 +44,12 @@ through `cities`, it will look up the country rows via the join key
 To do this, _Presto keeps the build table in memory_.  This is why it's important
 to _put the smaller table on the right_.
 
-In the example above, the build table has only one row for the 'iso2' join key.
-Multiple cities per country are in the stream, and each matches in turn.  If
-there were more than one build table entry per 'iso2', each matching left-hand
-row would iterate through the list of build rows for join key, yielding multiple
-joined rows.  Hence this method can support One-to-One, Many-to-One,
-One-to-Many, and Many-to-Many joins.
+In the example above, the build hashtable has only one row in the entry for
+each value of the `iso2` join key.  Multiple cities per country are in the
+stream, and each matches in turn.  If there were more than one build hashtable
+entry per `iso2`, each matching left-hand row would iterate through the list of
+build rows for join key, yielding multiple joined rows.  Hence this method can
+support One-to-One, Many-to-One, One-to-Many, and Many-to-Many joins.
 
 Broadcast Joins
 ===============
@@ -98,8 +98,10 @@ In the case of a Right or Full Outer Join, a set of all matched right rows is
 kept by each worker; at the end unmatched right rows are yielded with `null`
 fields instead of the left-hand fields.
 
-This last method is not easy to do in the case of Right or Full Outer Joins.
-Thus, specifying either of these will force a Partitioned Join.
+This procedure for Right or Full Outer Joins is hard to do if multiple workers
+have the same build-side join key: a given worker might not find a match, but
+it doesn't know if another worker has found a match.  This would be the case in
+a Broadcast join, so specifying either of these will force a Partitioned Join.
 
 Join Predicates and Push Downs
 ==============================
