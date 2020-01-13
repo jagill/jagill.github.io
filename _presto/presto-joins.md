@@ -126,7 +126,7 @@ statements are equivalent:
 
 ```sql
 SELECT t1.e, t2.f
-FROM t1 JOIN t2
+FROM t1 CROSS JOIN t2
 WHERE t1.a = t2.b
   AND t1.c < 10
   AND t2.d = 'a'
