@@ -1,0 +1,4 @@
+[submodule "themes/even"]
+	path = themes/even
+	url = git@github.com:jagill/even.git
+	branch = jag

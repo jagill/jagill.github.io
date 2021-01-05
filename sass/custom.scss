@@ -1,0 +1,39 @@
+img[alt=GitHubUser] {
+    width: 16px;
+    height: 16px;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+}
+
+a, main .about p>a, main .post p>a {
+    color: #515151;
+}
+main .post-content a:hover {
+    color: #c05b4d;
+}
+main .about p>a:hover {
+    color: #c05b4d;
+    text-decoration: none;
+    border-bottom: none;
+}
+
+h1 .zola-anchor, h2 .zola-anchor, h3 .zola-anchor, h4 .zola-anchor, h5 .zola-anchor, h6 .zola-anchor {
+    font-size: 1.25rem;
+    margin-left: 0.5rem;
+    margin-right: 0.75rem;
+    text-decoration: none;
+    border-bottom-color: transparent;
+    cursor: pointer;
+}
+
+main .post code {
+    color: #24292e;
+    background-color: #F4F4F4;
+}
+
+main .post pre code {
+    background-color: #2B303B;
+
+}
