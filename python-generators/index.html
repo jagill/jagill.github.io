@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Journeyman&#x27;s Guides - Python Generators</title>
+
+      
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="https://jagill.github.io/atom.xml">
+      
+
+      
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
+          
+      
+
+      
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;site.css">
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;custom.css">
+          
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="container">
+
+            <div id="mobile-navbar" class="mobile-navbar">
+              <div class="mobile-header-logo">
+                <a href="/" class="logo">Journeyman&#x27;s Guides</a>
+              </div>
+              <div class="mobile-navbar-icon icon-out">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <nav id="mobile-menu" class="mobile-menu slideout-menu slideout-menu-left">
+              <ul class="mobile-menu-list">
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io">
+                            Home
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                            Categories
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                            Tags
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                            About
+                        </a>
+                    </li>
+                
+              </ul>
+            </nav>
+
+            <header id="header">
+                <div class="logo"><a href="https:&#x2F;&#x2F;jagill.github.io">Journeyman&#x27;s Guides</a></div>
+                <nav class="menu">
+                    <ul>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io">
+                                    Home
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                                    Categories
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                                    Tags
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                                    About
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </nav>
+            </header>
+
+            <main>
+                <div class="content" id="mobile-panel">
+                    
+
+
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+            <ul>
+                
+                <li>
+                    <a href="https://jagill.github.io/python-generators/#iterables-and-iterators" class="toc-link">Iterables and Iterators</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/python-generators/#generators" class="toc-link">Generators</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/python-generators/#sending" class="toc-link">Sending</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<article class="post">
+    
+    <header class="post__header">
+        <h1 class="post__title">
+            <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;python-generators&#x2F;">Python Generators</a>
+        </h1>
+        <div class="post__meta">
+            <span class="post__time">2017-05-01</span>
+            
+        </div>
+    </header>
+
+    <div class="post-content">
+      <p>One of Python's strengths is its powerful generators.  Even a basic understand
+of them unlocks the the ability to elegantly handle even huge datasets.  But
+they hold some suprises in what is executed when -- understand them at a deeper
+level allows you to use and debug them more effectively.</p>
+<span id="continue-reading"></span><h2 id="iterables-and-iterators">Iterables and Iterators<a class="zola-anchor" href="#iterables-and-iterators" aria-label="Anchor link for: iterables-and-iterators">🔗</a></h2>
+<p>First, some basics.  An <em>iterable</em> is an object like a list or a tuple
+that can be iterated over in a <code>for</code> loop.  We will see shortly that there are
+other types of iterables.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">a = [</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">]
+</span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">i </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">a:
+    </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(i)
+</span><span style="color:#65737e;"># 1
+# 2
+# 3
+</span></code></pre>
+<p>An <em>iterator</em> <code>itr</code> is an object with an <code>__next()__</code> method which yields the
+next object to be iterated over. If there are no more objects, <code>next()</code> will
+instead raise a <code>StopIteration</code> exception. The pythonic way to do this is the
+builtin <code>next</code> function: <code>next(itr)</code>. There is a deep connection between
+iterables and iterators; part of the iterable contract is that an iterable
+must expose an <code>__iter__()</code> method which returns an iterator. The pythonic
+way to call this is using the builtin <code>iter()</code> method: <code>iter(a)</code></p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">a = [</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">]
+itr = </span><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">(a)
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(itr))
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(itr))
+</span><span style="color:#65737e;"># 2
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(itr))
+</span><span style="color:#65737e;"># StopIteration
+</span></code></pre>
+<p>In fact, the <code>for</code> loop over an iterable <code>a</code> can be implemented as:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#65737e;"># Vanilla for loop
+</span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">x </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">a:
+  </span><span style="color:#bf616a;">f</span><span style="color:#c0c5ce;">(x)
+
+</span><span style="color:#65737e;"># or the iterator version
+</span><span style="color:#c0c5ce;">itr = </span><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">(a)
+</span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">:
+  </span><span style="color:#b48ead;">try</span><span style="color:#c0c5ce;">:
+    x = </span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(itr)
+  </span><span style="color:#b48ead;">except </span><span style="color:#c0c5ce;">StopIteration:
+    </span><span style="color:#b48ead;">break
+  </span><span style="color:#bf616a;">f</span><span style="color:#c0c5ce;">(x)
+</span></code></pre>
+<p>To make life slightly easier, <em>iterators must also be iterables</em>; i.e. they
+must expose the <code>__iter__</code> method, which in this case will just return
+themselves:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">]) is [</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">]
+</span><span style="color:#65737e;"># False
+</span><span style="color:#c0c5ce;">itr = </span><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">])
+</span><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">(itr) is itr
+</span><span style="color:#65737e;"># True
+</span></code></pre>
+<p>One important difference between iterators and most iterables is that
+iterators are always one-shot, while iterables might be able to be consumed
+more than once. If call <code>next</code> on an iterator (in a for loop or otherwise),
+you are consuming one iteration, and it can't be consumed again. When you
+iterate over most iterables (like lists, etc), you create a new iterator,
+which starts from the beginning.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">a = [</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">]
+b = </span><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">])
+
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">print1</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">itbl</span><span style="color:#c0c5ce;">):
+    </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">x </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">itbl:
+        </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(x)
+        </span><span style="color:#b48ead;">break
+
+</span><span style="color:#bf616a;">print1</span><span style="color:#c0c5ce;">(a)
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#bf616a;">print1</span><span style="color:#c0c5ce;">(a)
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#bf616a;">print1</span><span style="color:#c0c5ce;">(a)
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#bf616a;">print1</span><span style="color:#c0c5ce;">(b)
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#bf616a;">print1</span><span style="color:#c0c5ce;">(b)
+</span><span style="color:#65737e;"># 2
+</span><span style="color:#bf616a;">print1</span><span style="color:#c0c5ce;">(b)
+</span><span style="color:#65737e;"># Nothing!  We have exhausted b already.
+</span></code></pre>
+<p>In fact, for many iterables, you can create multiple independent iterators:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">a = [</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">]
+b = </span><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">(a)
+c = </span><span style="color:#96b5b4;">iter</span><span style="color:#c0c5ce;">(a)
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(b)
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(c)
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(c)
+</span><span style="color:#65737e;"># 2
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(c)
+</span><span style="color:#65737e;"># 3
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(c)
+</span><span style="color:#65737e;"># StopIteration
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(b)
+</span><span style="color:#65737e;"># 2
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(b)
+</span><span style="color:#65737e;"># 3
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(b)
+</span><span style="color:#65737e;"># StopIteration
+</span></code></pre>
+<p>To summarize, an iterable is something that exposes an iterator via <code>iter</code>, and
+an iterator is something that you can call <code>next</code> on.</p>
+<h2 id="generators">Generators<a class="zola-anchor" href="#generators" aria-label="Anchor link for: generators">🔗</a></h2>
+<p>If you use the <code>yield</code> keyword in a function, it does not return a normal value,
+but instead returns a generator.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">f</span><span style="color:#c0c5ce;">():
+  </span><span style="color:#b48ead;">yield </span><span style="color:#d08770;">1
+
+</span><span style="color:#c0c5ce;">g = </span><span style="color:#bf616a;">f</span><span style="color:#c0c5ce;">()
+</span><span style="color:#96b5b4;">type</span><span style="color:#c0c5ce;">(g)
+</span><span style="color:#65737e;"># &lt;type &#39;generator&#39;&gt;
+</span></code></pre>
+<p>Generators are in fact iterators.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(g))
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(g))
+</span><span style="color:#65737e;"># StopIteration
+</span></code></pre>
+<p>Each time you call the function, you'll get a new, independent, iterator.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">f</span><span style="color:#c0c5ce;">():
+  </span><span style="color:#b48ead;">yield </span><span style="color:#d08770;">1
+
+</span><span style="color:#c0c5ce;">g1 = </span><span style="color:#bf616a;">f</span><span style="color:#c0c5ce;">()
+g2 = </span><span style="color:#bf616a;">f</span><span style="color:#c0c5ce;">()
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(g1))
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(g1))
+</span><span style="color:#65737e;"># StopIteration
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(g2))
+</span><span style="color:#65737e;"># 1
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(g2))
+</span><span style="color:#65737e;"># StopIteration
+</span></code></pre>
+<p>One of the most important features of a generator is that it lazily yields
+values. Between <code>next</code> calls, it suspends execution, but maintains its
+internal state. The classic example is the infinite counter, which lazily
+produces an infinite sequence of integers.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">counter</span><span style="color:#c0c5ce;">():
+  c = </span><span style="color:#d08770;">0
+  </span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">:
+    </span><span style="color:#b48ead;">yield </span><span style="color:#c0c5ce;">c
+    c += </span><span style="color:#d08770;">1
+
+</span><span style="color:#c0c5ce;">count = </span><span style="color:#bf616a;">counter</span><span style="color:#c0c5ce;">()
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(count))
+</span><span style="color:#65737e;"># 0
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(count))
+</span><span style="color:#65737e;"># 1
+</span></code></pre>
+<p>This will never raise a <code>StopIteration</code>; it will continue to count forever.  Be
+careful not to iterate it in a <code>for</code> loop without a <code>break</code> statement!</p>
+<p>Let's examine the sequence of operations of this simple generator more closely.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">counter</span><span style="color:#c0c5ce;">():
+    </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Starting counter</span><span style="color:#c0c5ce;">&#39;)
+    c = </span><span style="color:#d08770;">0
+    </span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">:
+        </span><span style="color:#b48ead;">yield </span><span style="color:#c0c5ce;">c
+        c += </span><span style="color:#d08770;">1
+        </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Incremented counter to</span><span style="color:#c0c5ce;">&#39;, c)
+
+count = </span><span style="color:#bf616a;">counter</span><span style="color:#c0c5ce;">()
+y = </span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(count)
+</span><span style="color:#65737e;"># Starting counter
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Counted</span><span style="color:#c0c5ce;">&#39;, y)
+</span><span style="color:#65737e;"># Counted 0
+</span><span style="color:#c0c5ce;">y = </span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(count)
+</span><span style="color:#65737e;"># Incremented counter to 1
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Counted</span><span style="color:#c0c5ce;">&#39;, y)
+</span><span style="color:#65737e;"># Counted 1
+</span></code></pre>
+<p>Let's examine the flow:</p>
+<ol>
+<li><code>count = counter()</code>  initializes the generator, assigning to <code>count</code> an
+iterator.  Notice it does not execute anything inside of counter.</li>
+<li><code>y = next(count)</code> iterates the iterator, executing the code in <code>counter</code> up
+to the first time we yield.  It assigns the yielded value <code>0</code> to <code>y</code>.</li>
+<li><code>print 'Counted', y</code> prints the yielded value <code>0</code>.</li>
+<li><code>y = next(count)</code> executes the loop from the first <code>yield</code> to the second.  It
+also assigns the yielded value <code>1</code> to <code>y</code>.</li>
+<li><code>print 'Counted', y</code> prints the yielded value <code>1</code>.</li>
+</ol>
+<h2 id="sending">Sending<a class="zola-anchor" href="#sending" aria-label="Anchor link for: sending">🔗</a></h2>
+<p>This is a basic generator that you can use to iterate/etc. But <code>yield</code> also
+has a special power; it can receive values from the outside the function and
+assign them to variables inside. Let's make a basic consumer:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">printer</span><span style="color:#c0c5ce;">():
+    </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Starting printer</span><span style="color:#c0c5ce;">&#39;)
+    </span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">:
+        x = </span><span style="color:#b48ead;">yield
+        </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Printing</span><span style="color:#c0c5ce;">&#39;, x)
+
+p = </span><span style="color:#bf616a;">printer</span><span style="color:#c0c5ce;">()
+y = </span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(p)
+</span><span style="color:#65737e;"># Starting printer
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Outside</span><span style="color:#c0c5ce;">&#39;, y)
+</span><span style="color:#65737e;"># Outside None
+</span><span style="color:#c0c5ce;">y = </span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(p)
+</span><span style="color:#65737e;"># Printing None
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Outside</span><span style="color:#c0c5ce;">&#39;, y)
+</span><span style="color:#65737e;"># Outside None
+</span></code></pre>
+<p>This creates a generator that doesn't yield anything.  Let's follow the flow.</p>
+<ol>
+<li><code>p = printer()</code> creates p, which does not do any execution.</li>
+<li><code>y = next(p)</code> executes <code>printer</code> up to the line <code>x = yield</code>, which
+waits for iteration.  Since we didn't specify anything to yield that's the
+equivalent of <code>yield None</code>, and <code>y</code> is assigned to <code>None</code>.</li>
+<li><code>print('Outside', y)</code> Since <code>y</code> is <code>None</code>, we print <code>Outside None</code>.</li>
+<li><code>y = next(p)</code> executes <code>printer</code> from the <code>yield</code>.  We assign the result of
+the <code>yield</code> expression to <code>x</code>.  This is also <code>None</code>, because we didn't <code>send</code>
+anything -- foreshadowing!  Since we are yet again not yielding anything,
+<code>None</code> is returned and assigned to <code>y</code>.</li>
+<li><code>print('Outside', y)</code> Since <code>y</code> is <code>None</code>, we print <code>Outside None</code>.</li>
+</ol>
+<p>For <code>yield</code> to actually receive information, we need to use the <code>send</code> method
+of the generator.  In the above example, we didn't send anything to <code>p</code>, because
+we wanted to emphases that <code>printer</code> is just a normal generator, but that
+<code>yield</code> actually returns a value that can be assigned to a variable.  Now let's
+actually get to <code>send</code>:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">p = </span><span style="color:#bf616a;">printer</span><span style="color:#c0c5ce;">()
+y = p.</span><span style="color:#bf616a;">send</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
+</span><span style="color:#65737e;"># Starting printer
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Outside</span><span style="color:#c0c5ce;">&#39;, y)
+</span><span style="color:#65737e;"># Outside None
+</span><span style="color:#c0c5ce;">y = p.</span><span style="color:#bf616a;">send</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">a</span><span style="color:#c0c5ce;">&#39;)
+</span><span style="color:#65737e;"># Printing a
+</span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Outside</span><span style="color:#c0c5ce;">&#39;, y)
+</span><span style="color:#65737e;"># Outside None
+</span><span style="color:#c0c5ce;">p.</span><span style="color:#bf616a;">send</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">)
+</span><span style="color:#65737e;"># Printing 2
+</span></code></pre>
+<p>Now we're sending things to the generator to be processed.  Let's follow the
+flow.</p>
+<ol>
+<li><code>p = printer()</code> creates p, which does not do any execution.</li>
+<li><code>y = p.send(None)</code> starts the generators execution, exactly like <code>next(p)</code>
+would.  In fact, you could replace this with <code>next(p)</code> and it would be the same.
+You need to &quot;prime&quot; the generator in this way; if you try to send a non-<code>None</code>
+value to a just-started generator, it will throw an error.</li>
+<li><code>print('Outside', y)</code> prints the value of <code>y</code>, which is <code>None</code>, because <code>send</code>
+has no return value.</li>
+<li><code>y = p.send('a')</code> sends the value <code>'a'</code> to the generator.  The line
+<code>x = yield</code> means that it will assign to <code>x</code> the value that is sent, in this
+case <code>'a'</code>, and so that is printed before we loop around to the <code>yield</code>
+statement again.</li>
+<li><code>print('Outside', y)</code> shows that <code>y</code> is still <code>None</code>, and will always be so.</li>
+<li><code>p.send(2)</code> sends the value <code>2</code>, which is printed as expected.</li>
+</ol>
+<p>Now how do we tie these together?  Here's a very simple way:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">count = </span><span style="color:#bf616a;">counter</span><span style="color:#c0c5ce;">()
+p = </span><span style="color:#bf616a;">printer</span><span style="color:#c0c5ce;">()
+p.</span><span style="color:#bf616a;">send</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
+</span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">x </span><span style="color:#b48ead;">in </span><span style="color:#96b5b4;">range</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">)
+    p.</span><span style="color:#bf616a;">send</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(count))
+
+</span><span style="color:#65737e;"># &gt; Starting counter
+# &gt; Printing 0
+# &gt; Incremented counter to 1
+# &gt; Printing 1
+# &gt; Incremented counter to 2
+# &gt; Printing 2
+</span></code></pre>
+<p>We say that <code>count</code> is a producer (because it is yielding results to the
+outside), and <code>p</code> is a consumer, because we are sending values to it. Of
+course, we can have a generator that consumes a producer.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">times2</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">gen</span><span style="color:#c0c5ce;">):
+    </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Starting times2</span><span style="color:#c0c5ce;">&#39;)
+    </span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">:
+        x = </span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(gen)
+        </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Multiplying </span><span style="color:#d08770;">%s</span><span style="color:#a3be8c;"> by 2</span><span style="color:#c0c5ce;">&#39; % x)
+        </span><span style="color:#b48ead;">yield </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">*x
+
+count = </span><span style="color:#bf616a;">counter</span><span style="color:#c0c5ce;">()
+t2 = </span><span style="color:#bf616a;">times2</span><span style="color:#c0c5ce;">(count)
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(t2)
+</span><span style="color:#65737e;"># &gt; Starting times2
+# &gt; Starting counter
+# &gt; Multiplying 0 by 2
+# 0
+</span><span style="color:#96b5b4;">next</span><span style="color:#c0c5ce;">(t2)
+</span><span style="color:#65737e;"># &gt; Incremented counter to 1
+# &gt; Multiplying 1 by 2
+# 2
+</span></code></pre>
+<p>The <code>while</code> statement above is actually just a cumbersome <code>for</code> loop. It
+could be written as</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">times2</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">gen</span><span style="color:#c0c5ce;">):
+    </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">x </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">gen:
+        </span><span style="color:#b48ead;">yield </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">*x
+</span></code></pre>
+    </div>
+
+    
+    
+
+    <div class="post-footer">
+        
+            
+                <div class="post-tags">
+                    
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags&#x2F;python&#x2F;">#python</a>
+                    
+                </div>
+            
+            
+                <div class="post-nav">
+                    
+                        <a class="previous" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;git-remote&#x2F;">‹ Git Remote Branches</a>
+                    
+                    
+                        <a class="next" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-overview&#x2F;">Presto Overview ›</a>
+                    
+                    
+                    
+                </div>
+            
+
+        
+
+    </div>
+
+    
+    
+</article>
+
+
+                </div>
+            </main>
+
+            
+            
+        </div>
+
+      
+          <script type="text/javascript" src="https:&#x2F;&#x2F;jagill.github.io&#x2F;even.js" ></script>
+      
+    </body>
+
+</html>

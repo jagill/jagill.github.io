@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Journeyman&#x27;s Guides - Git Reset</title>
+
+      
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="https://jagill.github.io/atom.xml">
+      
+
+      
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
+          
+      
+
+      
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;site.css">
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;custom.css">
+          
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="container">
+
+            <div id="mobile-navbar" class="mobile-navbar">
+              <div class="mobile-header-logo">
+                <a href="/" class="logo">Journeyman&#x27;s Guides</a>
+              </div>
+              <div class="mobile-navbar-icon icon-out">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <nav id="mobile-menu" class="mobile-menu slideout-menu slideout-menu-left">
+              <ul class="mobile-menu-list">
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io">
+                            Home
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                            Categories
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                            Tags
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                            About
+                        </a>
+                    </li>
+                
+              </ul>
+            </nav>
+
+            <header id="header">
+                <div class="logo"><a href="https:&#x2F;&#x2F;jagill.github.io">Journeyman&#x27;s Guides</a></div>
+                <nav class="menu">
+                    <ul>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io">
+                                    Home
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                                    Categories
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                                    Tags
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                                    About
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </nav>
+            </header>
+
+            <main>
+                <div class="content" id="mobile-panel">
+                    
+
+
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+            <ul>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#the-four-stages-of-commitment" class="toc-link">The four stages of commitment</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#the-index-and-working-tree" class="toc-link">The index and working tree</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#the-index" class="toc-link">The index</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#the-working-tree" class="toc-link">The working tree</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#the-many-flavors-of-git-reset" class="toc-link">The many flavors of git reset</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#hard-reset" class="toc-link">hard reset</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#soft-and-mixed" class="toc-link">Soft and Mixed</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#reset-vs-checkout" class="toc-link">reset vs checkout</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-reset/#summary" class="toc-link">Summary</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<article class="post">
+    
+    <header class="post__header">
+        <h1 class="post__title">
+            <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;git-reset&#x2F;">Git Reset</a>
+        </h1>
+        <div class="post__meta">
+            <span class="post__time">2017-03-02</span>
+            
+        </div>
+    </header>
+
+    <div class="post-content">
+      <p>An important part of version control is the ability to go back to previous 
+states -- particularly if your recent changes messed something up!  Git
+has the powerful <code>reset</code> command, but it has a bewildering array of
+slightly-but-crucially-different modes.  People generally start out memorizing
+a couple <code>reset</code> commands for common tasks, but still have questions like
+&quot;what does <code>git reset --soft</code> do anyway?&quot;.  In this article, we'll build up
+a mental model of how Git views changes, which will allow us to unlock the full
+power of <code>reset</code>.</p>
+<span id="continue-reading"></span>
+<p><code>git-reset</code> has several options, and using it effectively requires
+understanding some fundamental concepts in git: HEAD, the index, and the
+working tree. Underlying all of these is the familiar concept of the
+filetree; this is just the files and directories under the root of the git
+repo.</p>
+<h2 id="the-four-stages-of-commitment">The four stages of commitment<a class="zola-anchor" href="#the-four-stages-of-commitment" aria-label="Anchor link for: the-four-stages-of-commitment">🔗</a></h2>
+<p>An important conceptual model to have in our mind is the four stages changes go
+through in the <code>git commit</code> process.  We'll find that the the various options
+of <code>git reset</code> differ primarily in how they move around these four stages of
+commitment.  These are the file tree, the working tree, the index, and HEAD.</p>
+<ul>
+<li>The file tree is just the changes that are on disk; this is the familiar
+non-git concept.</li>
+<li>The working tree is those changes to the file tree that git knows about.  Any
+changes to the file tree in a file that is tracked by git are automatically
+known, and thus on the working tree.</li>
+<li>The index is those changes that are staged to be included in the next commit.
+Changes are generally moved from the working tree to the index by <code>git add</code>.</li>
+<li>HEAD is the commit you are currently on.</li>
+</ul>
+<p>We'll give examples for those four in a second, but let's talk about <code>git diff</code>
+and <code>git status</code>.  When you use <code>git diff</code>, it shows the differences between
+the index and the working tree.  Thus it does not show staged changes.  Using
+<code>git diff --staged</code> (alias: <code>git diff --cached</code>) shows the differences between
+HEAD and the index.</p>
+<p>The command <code>git status</code> will show you what files have
+changes in the index (staged changes, under &quot;Changes to be committed:&quot;),
+changes in the working tree but not in the index (unstaged cahnges, under
+&quot;Changes not staged for commit:&quot;), and files that are not known to git
+(under &quot;Untracked files:&quot;).  Note that it's quite possible for a given file
+to have both staged and unstaged changes (see below).</p>
+<p>In this tutorial when we use <code>git status</code> or <code>git diff</code>, we abbreviate the
+output for brevity.  The actual output you see will be more verbose.</p>
+<h2 id="the-index-and-working-tree">The index and working tree<a class="zola-anchor" href="#the-index-and-working-tree" aria-label="Anchor link for: the-index-and-working-tree">🔗</a></h2>
+<p>First let's review the index and the working tree, which are necessary to
+understand git reset.  If you feel very comfortable with them, feel free to
+breeze through this section, just setting up the commits.  We'll use those
+commits in the discussion of git-reset below.</p>
+<h2 id="the-index">The index<a class="zola-anchor" href="#the-index" aria-label="Anchor link for: the-index">🔗</a></h2>
+<p>The index is a staging area where changes are held before they are committed.
+Let's see it in action in a simple scenario.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> mkdir git-reset &amp;&amp; </span><span style="color:#96b5b4;">cd</span><span style="color:#c0c5ce;"> git-reset
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git init
+</span><span style="color:#bf616a;">Initialized</span><span style="color:#c0c5ce;"> empty Git repository in /Users/jag/tmp/git-reset/.git/
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> echo &quot;</span><span style="color:#a3be8c;">A1</span><span style="color:#c0c5ce;">&quot; &gt; a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git status
+</span><span style="color:#bf616a;">Untracked</span><span style="color:#c0c5ce;"> files:
+	</span><span style="color:#bf616a;">a.txt
+$</span><span style="color:#c0c5ce;"> git diff
+</span></code></pre>
+<p>In terms of the four stages, we have:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A1 &lt; filetree
+NULL &lt; HEAD, index, worktree
+</span></code></pre>
+<p>(An initialized git repo starts with no commits, so HEAD is not defined).</p>
+<p>At this point, we have a single untracked file.  By definition, this file is
+in the filetree, but git has no knowledge of it yet.   That's why <code>git diff</code>
+does not tell us about the changes to <code>a.txt</code>. As soon as git knows
+about it, it is considered in the <em>working tree</em>; and git helpfully tells us
+to add it:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git add a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git status
+</span><span style="color:#bf616a;">Changes</span><span style="color:#c0c5ce;"> to be committed:
+	</span><span style="color:#bf616a;">new</span><span style="color:#c0c5ce;"> file:   a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git diff
+</span></code></pre>
+<p>So now git knows about it, but why did <code>git diff</code> still return nothing?
+Because the <code>a.txt</code> is actually in the <em>index</em>.  The index is like a
+'commit-in-waiting'; by adding changes you are building up what will be the
+next commit.  We can check the diff with the <code>--staged</code> option:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git diff</span><span style="color:#bf616a;"> --staged
+new</span><span style="color:#c0c5ce;"> file mode 100644
+</span><span style="color:#bf616a;">---</span><span style="color:#c0c5ce;"> /dev/null
+</span><span style="color:#bf616a;">+++</span><span style="color:#c0c5ce;"> b/a.txt
+</span><span style="color:#bf616a;">+A1
+</span></code></pre>
+<p>In terms of our four stages, we have:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A1 &lt; index, worktree, filetree
+NULL &lt; HEAD
+</span></code></pre>
+<p>There's a lot of information here, but we can see that it's a new file, and
+the contents are the expected 'A1'.  Let's commit it.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git commit</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">A1</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">[master</span><span style="color:#c0c5ce;"> (root-commit) </span><span style="color:#bf616a;">5b2c703]</span><span style="color:#c0c5ce;"> A1
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+ </span><span style="color:#bf616a;">create</span><span style="color:#c0c5ce;"> mode 100644 a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git status </span><span style="color:#65737e;"># Nothing here after commit
+</span><span style="color:#c0c5ce;">$ A1=`</span><span style="color:#bf616a;">git</span><span style="color:#c0c5ce;"> rev-parse HEAD`
+</span></code></pre>
+<p>The last line just stores the current commit hash in a variable we'll use
+later.  The details aren't important, but if you want to know more you can
+<code>git help rev-parse</code>.</p>
+<p>The four stages are now all pointing to the same commit:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A1 &lt; HEAD, index, worktree, filetree
+</span></code></pre><h2 id="the-working-tree">The working tree<a class="zola-anchor" href="#the-working-tree" aria-label="Anchor link for: the-working-tree">🔗</a></h2>
+<p>We can think of HEAD, the index, and the working tree as accumulating the
+changes we are making to the file tree.  Now that we have commited A1,
+HEAD, the index, and the working tree are all up-to-date with the file tree.</p>
+<p>Now that <code>a.txt</code> is known to git, changes to it show up in the working tree.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> echo &#39;</span><span style="color:#a3be8c;">A2</span><span style="color:#c0c5ce;">&#39; &gt;&gt; a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git status
+</span><span style="color:#bf616a;">Changes</span><span style="color:#c0c5ce;"> not staged for commit:
+	</span><span style="color:#bf616a;">modified:</span><span style="color:#c0c5ce;">   a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git diff
+</span><span style="color:#bf616a;">---</span><span style="color:#c0c5ce;"> a/a.txt
+</span><span style="color:#bf616a;">+++</span><span style="color:#c0c5ce;"> b/a.txt
+ </span><span style="color:#bf616a;">A1
++A2
+</span></code></pre>
+<p>Now our picture looks like:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A2 &lt; worktree, filetree
+A1 &lt; HEAD, index
+</span></code></pre>
+<p>Adding <code>a.txt</code> moves the changes from the working tree to the index:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">$ git add a.txt
+$ git status
+Changes to be committed:
+	modified:   a.txt
+$ git diff
+$ git diff --staged
+--- a/a.txt
++++ b/a.txt
+ A1
++A2
+</span></code></pre>
+<p>Now our picture looks like:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A2 &lt; index, worktree, filetree
+A1 &lt; HEAD
+</span></code></pre>
+<p>The changes no longer appear in <code>git diff</code>, just in <code>git diff --staged</code>.  If we
+change <code>a.txt</code> again, the new changes are not in the index, just the working tree.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> echo &#39;</span><span style="color:#a3be8c;">A3</span><span style="color:#c0c5ce;">&#39; &gt;&gt; a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git status
+</span><span style="color:#bf616a;">Changes</span><span style="color:#c0c5ce;"> to be committed:
+	</span><span style="color:#bf616a;">modified:</span><span style="color:#c0c5ce;">   a.txt
+</span><span style="color:#bf616a;">Changes</span><span style="color:#c0c5ce;"> not staged for commit:
+	</span><span style="color:#bf616a;">modified:</span><span style="color:#c0c5ce;">   a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git diff
+</span><span style="color:#bf616a;">---</span><span style="color:#c0c5ce;"> a/a.txt
+</span><span style="color:#bf616a;">+++</span><span style="color:#c0c5ce;"> b/a.txt
+ </span><span style="color:#bf616a;">A1
+ A2
++A3
+$</span><span style="color:#c0c5ce;"> git diff</span><span style="color:#bf616a;"> --staged
+---</span><span style="color:#c0c5ce;"> a/a.txt
+</span><span style="color:#bf616a;">+++</span><span style="color:#c0c5ce;"> b/a.txt
+ </span><span style="color:#bf616a;">A1
++A2
+</span></code></pre>
+<p>Our stages are:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A3 &lt; worktree, filetree
+A2 &lt; index
+A1 &lt; HEAD
+</span></code></pre>
+<p>Notice that <code>git diff --staged</code> has not changed, but the new changes are in
+<code>git diff</code>.  Now if we commit, we just commit the things in the index.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git commit</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">A2</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">[master</span><span style="color:#c0c5ce;"> cdd1bff] A2
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git status</span><span style="color:#bf616a;"> --short
+Changes</span><span style="color:#c0c5ce;"> not staged for commit:
+	</span><span style="color:#bf616a;">modified:</span><span style="color:#c0c5ce;">   a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> A2=`</span><span style="color:#bf616a;">git</span><span style="color:#c0c5ce;"> rev-parse HEAD`
+</span></code></pre>
+<p>The index changes are gone, but the working tree is left unchanged.  Note that
+the file tree is unchanged; we've just been catching the commits up to the index.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A3 &lt; worktree, filetree
+A2 &lt; HEAD, index
+A1
+</span></code></pre>
+<p>Lastly, let's commit the last changes so that we are positioned to explore
+<code>git reset</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git add a.txt
+</span><span style="color:#65737e;"># A3 &lt; index, worktree, filetree
+# A2 &lt; HEAD
+</span><span style="color:#c0c5ce;">$ git commit</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">A3</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">[master</span><span style="color:#c0c5ce;"> 813395c] A3
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> A3=`</span><span style="color:#bf616a;">git</span><span style="color:#c0c5ce;"> rev-parse HEAD`
+</span></code></pre>
+<p>Now everything is pointed at A3!</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A3 &lt; HEAD, index, worktree, filetree
+A2
+A1
+</span></code></pre><h2 id="the-many-flavors-of-git-reset">The many flavors of git reset<a class="zola-anchor" href="#the-many-flavors-of-git-reset" aria-label="Anchor link for: the-many-flavors-of-git-reset">🔗</a></h2>
+<p>The <code>reset</code> command takes a bewildering number of forms and options.  We'll
+attempt to demystify these.  The fundamental principal is that <code>git reset</code>
+moves HEAD to the commit specified, and the options control what happens
+to the index, working tree, and file tree.</p>
+<h2 id="hard-reset">hard reset<a class="zola-anchor" href="#hard-reset" aria-label="Anchor link for: hard-reset">🔗</a></h2>
+<p>Let's start with <code>git reset --hard</code>.  This is the simplest to understand,
+because it moves all four stages to the designated commit.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate
+813395c</span><span style="color:#c0c5ce;"> (HEAD -&gt; master) </span><span style="color:#bf616a;">A3
+cdd1bff</span><span style="color:#c0c5ce;"> A2
+</span><span style="color:#bf616a;">5b2c703</span><span style="color:#c0c5ce;"> A1
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git reset</span><span style="color:#bf616a;"> --hard </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">A2
+$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate
+cdd1bff</span><span style="color:#c0c5ce;"> (HEAD -&gt; master) </span><span style="color:#bf616a;">A2
+5b2c703</span><span style="color:#c0c5ce;"> A1
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> cat a.txt
+</span><span style="color:#bf616a;">A1
+A2
+</span></code></pre>
+<p>Now we have</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A3
+A2 &lt; HEAD, index, worktree, filetree
+A1
+</span></code></pre>
+<p>Using <code>git reset --hard COMMIT</code> tells git to make all files that it knows
+about into the form expected by <code>COMMIT</code>.  Note that it doesn't touch any
+untracked files.</p>
+<h2 id="soft-and-mixed">Soft and Mixed<a class="zola-anchor" href="#soft-and-mixed" aria-label="Anchor link for: soft-and-mixed">🔗</a></h2>
+<p>Make sure you are on the <code>A3</code> commit:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git reset</span><span style="color:#bf616a;"> --hard </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">A3
+</span></code></pre>
+<p>Our four stages are:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A3 &lt; HEAD, index, worktree, filetree
+A2
+A1
+</span></code></pre>
+<p>When you <code>git reset --soft COMMIT</code>, it resets <code>HEAD</code> to point to <code>COMMIT</code>, but
+leaves the index, working tree, and file tree unchanged.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git reset</span><span style="color:#bf616a;"> --soft </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">A2
+Changes</span><span style="color:#c0c5ce;"> to be committed:
+	</span><span style="color:#bf616a;">modified:</span><span style="color:#c0c5ce;">   a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git diff</span><span style="color:#bf616a;"> --staged
+---</span><span style="color:#c0c5ce;"> a/a.txt
+</span><span style="color:#bf616a;">+++</span><span style="color:#c0c5ce;"> b/a.txt
+ </span><span style="color:#bf616a;">A1
+ A2
++A3
+$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate
+cdd1bff</span><span style="color:#c0c5ce;"> (HEAD -&gt; master) </span><span style="color:#bf616a;">A2
+5b2c703</span><span style="color:#c0c5ce;"> A1
+</span></code></pre>
+<p>We've moved <code>HEAD</code> back to the A2 commit.  Notice that <code>a.txt</code> is in the index.</p>
+<p>We have</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A3 &lt; index, worktree, filetree
+A2 &lt; HEAD
+A1
+</span></code></pre>
+<p>Instead, if we had used <code>git reset --mixed</code>, we'd have left the changes in the
+working tree.  (Note that <code>--mixed</code> is the default level, so <code>git reset</code> is
+equivalent to <code>git reset --mixed</code>).</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git reset</span><span style="color:#bf616a;"> --hard </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">A3
+$</span><span style="color:#c0c5ce;"> git reset</span><span style="color:#bf616a;"> --mixed </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">A2
+Unstaged</span><span style="color:#c0c5ce;"> changes after reset:
+</span><span style="color:#bf616a;">M</span><span style="color:#c0c5ce;">	a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git status
+</span><span style="color:#bf616a;">Changes</span><span style="color:#c0c5ce;"> not staged for commit:
+	</span><span style="color:#bf616a;">modified:</span><span style="color:#c0c5ce;">   a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git diff
+</span><span style="color:#bf616a;">---</span><span style="color:#c0c5ce;"> a/a.txt
+</span><span style="color:#bf616a;">+++</span><span style="color:#c0c5ce;"> b/a.txt
+ </span><span style="color:#bf616a;">A1
+ A2
++A3
+$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate
+cdd1bff</span><span style="color:#c0c5ce;"> (HEAD -&gt; master) </span><span style="color:#bf616a;">A2
+5b2c703</span><span style="color:#c0c5ce;"> A1
+</span></code></pre>
+<p>We have</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A3 &lt; worktree, filetree
+A2 &lt; HEAD, index
+A1
+</span></code></pre>
+<p>Now let's combine the two, to show their difference more clearly.  From the
+above state, we can use <code>git reset --soft</code>:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git reset</span><span style="color:#bf616a;"> --soft </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">A1
+$</span><span style="color:#c0c5ce;"> git status
+</span><span style="color:#bf616a;">Changes</span><span style="color:#c0c5ce;"> to be committed:
+	</span><span style="color:#bf616a;">modified:</span><span style="color:#c0c5ce;">   a.txt
+</span><span style="color:#bf616a;">Changes</span><span style="color:#c0c5ce;"> not staged for commit:
+	</span><span style="color:#bf616a;">modified:</span><span style="color:#c0c5ce;">   a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git diff
+</span><span style="color:#bf616a;">---</span><span style="color:#c0c5ce;"> a/a.txt
+</span><span style="color:#bf616a;">+++</span><span style="color:#c0c5ce;"> b/a.txt
+ </span><span style="color:#bf616a;">A1
+ A2
++A3
+$</span><span style="color:#c0c5ce;"> git diff</span><span style="color:#bf616a;"> --staged
+---</span><span style="color:#c0c5ce;"> a/a.txt
+</span><span style="color:#bf616a;">+++</span><span style="color:#c0c5ce;"> b/a.txt
+ </span><span style="color:#bf616a;">A1
++A2
+$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate
+5b2c703</span><span style="color:#c0c5ce;"> (HEAD -&gt; master) </span><span style="color:#bf616a;">A1
+</span></code></pre>
+<p>We have</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">A3 &lt; worktree, filetree
+A2 &lt; index
+A1 &lt; HEAD
+</span></code></pre>
+<p>Now that we understand the difference between <code>--soft</code>, <code>--mixed</code>, and
+<code>--hard</code>, let's get back to A3:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git reset</span><span style="color:#bf616a;"> --hard </span><span style="color:#c0c5ce;">$</span><span style="color:#bf616a;">A3
+</span></code></pre><h2 id="reset-vs-checkout">reset vs checkout<a class="zola-anchor" href="#reset-vs-checkout" aria-label="Anchor link for: reset-vs-checkout">🔗</a></h2>
+<p>While both <code>git reset</code> and <code>git checkout</code> change where HEAD is pointing, they
+do this in fundamentally different ways.  <code>git checkout</code> moves HEAD to
+point to the given branch (or commit-ish), without moving any branches.
+<code>git reset</code> instead moves the active branch (pointed to by HEAD) to the supplied
+commit-ish, dragging HEAD along with it.  In other words, <code>git checkout</code> switches
+what you are working on, while <code>git reset</code> modifies what you are working on.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git checkout</span><span style="color:#bf616a;"> --branch</span><span style="color:#c0c5ce;"> dev
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> 1fd9bf6 (HEAD -&gt; dev, master) </span><span style="color:#bf616a;">A3
+*</span><span style="color:#c0c5ce;"> ad01fba A2
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 3162ad7 A1
+
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> echo B1 &gt;&gt; b.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git add b.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git commit</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">B1</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> b0e3450 (HEAD -&gt; dev) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> 1fd9bf6 (master) </span><span style="color:#bf616a;">A3
+*</span><span style="color:#c0c5ce;"> ad01fba A2
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 3162ad7 A1
+
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git checkout master
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> b0e3450 (dev) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> 1fd9bf6 (HEAD -&gt; master) </span><span style="color:#bf616a;">A3
+*</span><span style="color:#c0c5ce;"> ad01fba A2
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 3162ad7 A1
+</span></code></pre>
+<p>Notice that the <code>dev</code> branch does not change, only the position of HEAD.
+Contrast this with when you <code>reset</code>:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git checkout dev
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> b0e3450 (HEAD -&gt; dev) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> 1fd9bf6 (master) </span><span style="color:#bf616a;">A3
+*</span><span style="color:#c0c5ce;"> ad01fba A2
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 3162ad7 A1
+
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git reset master
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> 1fd9bf6 (HEAD -&gt; dev, master) </span><span style="color:#bf616a;">A3
+*</span><span style="color:#c0c5ce;"> ad01fba A2
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 3162ad7 A1
+
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git reset b0e3450
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> b0e3450 (HEAD -&gt; dev) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> 1fd9bf6 (master) </span><span style="color:#bf616a;">A3
+*</span><span style="color:#c0c5ce;"> ad01fba A2
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 3162ad7 A1
+</span></code></pre>
+<p>When you reset, you move the branch as well.</p>
+<h2 id="summary">Summary<a class="zola-anchor" href="#summary" aria-label="Anchor link for: summary">🔗</a></h2>
+<p>We've seen the four stages of commitment, namely filetree, working tree, index,
+and HEAD.  The <code>reset</code> command conceptually moves those four stages; this in
+turn might affect the content of files or whether changes are staged or
+committed.  It can be useful to undo work, or to get the filetree/index in
+the appropriate state.</p>
+<p>It differs at a fundamental from the <code>checkout</code> command, even though
+sometimes their effects look similar. The checkout command doesn't affect the
+underlying commits, only where HEAD is pointing; you cannot lose committed
+data, only move along the commit DAG. The <code>reset</code> command changes state at a
+more fundamental level (especially the <code>--hard</code> option); you can undo work
+and modify the commit DAG, even removing commits from it.</p>
+
+    </div>
+
+    
+    
+
+    <div class="post-footer">
+        
+            
+                <div class="post-tags">
+                    
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags&#x2F;git&#x2F;">#git</a>
+                    
+                </div>
+            
+            
+                <div class="post-nav">
+                    
+                        <a class="previous" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;git-dag&#x2F;">‹ Git Commit Dag</a>
+                    
+                    
+                        <a class="next" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;git-remote&#x2F;">Git Remote Branches ›</a>
+                    
+                    
+                    
+                </div>
+            
+
+        
+
+    </div>
+
+    
+    
+</article>
+
+
+                </div>
+            </main>
+
+            
+            
+        </div>
+
+      
+          <script type="text/javascript" src="https:&#x2F;&#x2F;jagill.github.io&#x2F;even.js" ></script>
+      
+    </body>
+
+</html>

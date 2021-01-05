@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Journeyman&#x27;s Guides - Git Commit Dag</title>
+
+      
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="https://jagill.github.io/atom.xml">
+      
+
+      
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
+          
+      
+
+      
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;site.css">
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;custom.css">
+          
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="container">
+
+            <div id="mobile-navbar" class="mobile-navbar">
+              <div class="mobile-header-logo">
+                <a href="/" class="logo">Journeyman&#x27;s Guides</a>
+              </div>
+              <div class="mobile-navbar-icon icon-out">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <nav id="mobile-menu" class="mobile-menu slideout-menu slideout-menu-left">
+              <ul class="mobile-menu-list">
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io">
+                            Home
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                            Categories
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                            Tags
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                            About
+                        </a>
+                    </li>
+                
+              </ul>
+            </nav>
+
+            <header id="header">
+                <div class="logo"><a href="https:&#x2F;&#x2F;jagill.github.io">Journeyman&#x27;s Guides</a></div>
+                <nav class="menu">
+                    <ul>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io">
+                                    Home
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                                    Categories
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                                    Tags
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                                    About
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </nav>
+            </header>
+
+            <main>
+                <div class="content" id="mobile-panel">
+                    
+
+
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+            <ul>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-dag/#git-commits-as-a-dag" class="toc-link">Git commits as a DAG</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-dag/#our-first-commit" class="toc-link">Our first commit</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-dag/#branching" class="toc-link">Branching</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-dag/#merging" class="toc-link">Merging</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-dag/#conclusion" class="toc-link">Conclusion</a>
+                    
+                    <ul>
+                        
+                        <li>
+                            <a href="https://jagill.github.io/git-dag/#footnotes" class="toc-link">Footnotes</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<article class="post">
+    
+    <header class="post__header">
+        <h1 class="post__title">
+            <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;git-dag&#x2F;">Git Commit Dag</a>
+        </h1>
+        <div class="post__meta">
+            <span class="post__time">2017-03-01</span>
+            
+        </div>
+    </header>
+
+    <div class="post-content">
+      <p>Git is a powerful version control system, but the mental model can be
+complex. Beginners can find such concepts as fast-forward merges confusion,
+and sooner or later everyone ends up in the dreaded &quot;detached head&quot; mode.
+This article will build up a mental model of Git to understand what's really
+happening, ensuring that you're never trapped, and allowing you to perform
+impressive feats of Git surgery with aplomb.</p>
+<span id="continue-reading"></span><h2 id="git-commits-as-a-dag">Git commits as a DAG<a class="zola-anchor" href="#git-commits-as-a-dag" aria-label="Anchor link for: git-commits-as-a-dag">🔗</a></h2>
+<p>The fundamental object that we'll be talking about is a
+commit<sup class="footnote-reference"><a href="#commit-blobs">1</a></sup>. A commit is the current state of the file tree, along
+with some metadata. Some of this metadata is an author, and a message the
+author includes to explain the changes since the last commit. Another
+extremely important bit of metadata is the commit's parent commits. Most
+commits have a single parent, which is the previous state of the file tree.
+Sometimes, such as in a merge, a commit has multiple parents, since it
+inherits from and reconciles two or more different states. A fancy way of
+saying this is that a git repo forms a Directed Acyclic Graph (or DAG), with
+the commits as nodes, and the parent relationship being an arrow.</p>
+<p>Before we get started, let's make some aliases that will make visualization
+easier.  Enter the following commands:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git config</span><span style="color:#bf616a;"> --global</span><span style="color:#c0c5ce;"> alias.lol &quot;</span><span style="color:#a3be8c;">log --graph --decorate --pretty=oneline --abbrev-commit</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git config</span><span style="color:#bf616a;"> --global</span><span style="color:#c0c5ce;"> alias.lola &quot;</span><span style="color:#a3be8c;">log --graph --decorate --pretty=oneline --abbrev-commit --all</span><span style="color:#c0c5ce;">&quot;
+</span></code></pre>
+<p>Also, make sure you have the latest version of git (as of this writing, 2.5.0).
+On OS X, I suggest installing git via <a href="http://brew.sh/">Homebrew</a>.</p>
+<h2 id="our-first-commit">Our first commit<a class="zola-anchor" href="#our-first-commit" aria-label="Anchor link for: our-first-commit">🔗</a></h2>
+<p>Let's make this concrete.  Make a new directory called <code>git-dag-tutorial</code>,
+enter it, and then initialize the git repository:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> mkdir git-dag-tutorial
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> cd git-dag-tutorial
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git init
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git status
+</span><span style="color:#bf616a;">On</span><span style="color:#c0c5ce;"> branch master
+
+</span><span style="color:#bf616a;">Initial</span><span style="color:#c0c5ce;"> commit
+
+</span><span style="color:#bf616a;">nothing</span><span style="color:#c0c5ce;"> to commit (create/copy files and use &quot;</span><span style="color:#a3be8c;">git add</span><span style="color:#c0c5ce;">&quot; to track)
+</span></code></pre>
+<p>You now have an empty repository; it doesn't even have a commit yet.  Let's
+make our first commit.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> echo &#39;</span><span style="color:#a3be8c;">A0</span><span style="color:#c0c5ce;">&#39; &gt; a.txt </span><span style="color:#65737e;"># Make a file just containing &#39;A0&#39;
+</span><span style="color:#c0c5ce;">$ git add a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git commit</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">A0</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">[master</span><span style="color:#c0c5ce;"> (root-commit) </span><span style="color:#bf616a;">c32f318]</span><span style="color:#c0c5ce;"> A0
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+ </span><span style="color:#bf616a;">create</span><span style="color:#c0c5ce;"> mode 100644 a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c32f318 (HEAD -&gt; master) </span><span style="color:#bf616a;">A0
+$</span><span style="color:#c0c5ce;"> A0=`</span><span style="color:#bf616a;">git</span><span style="color:#c0c5ce;"> rev-parse HEAD`
+</span></code></pre>
+<p>The repo now has as a single commit,  and this commit is the only one that does
+not have a parent.  This is an important property of a repo -- there is only
+one 'root' commit, so if you trace back the ancestry of any commit, you will
+eventually end up here.</p>
+<p>The command <code>git lol</code> will show us the current commit (called <code>HEAD</code>), and its
+parent(s) recursively until we reach the root commit.  Try it now.  We only
+have one commit, so it will just show that.  The first column is of the form
+<code>c32f318...</code>; the crazy hex number is called the commit hash.  It will
+be different for everybody, so in the last line we just saved it in the
+environment variable <code>A0</code>.  Also, try <code>git show HEAD</code>; notice that it shows you
+that same commit, with some more information on it.</p>
+<p>We are also on a branch.  Type <code>git branch</code>, and notice it outputs <code>* master</code>.
+This means we are on the master branch.  A branch is really just a pointer to
+a given commit that keeps up as we create new commits.  Try <code>git show master</code>;
+notice that it gives the same commit.  Actually, we were being inaccurate above;
+in reality HEAD doesn't point to our first commit A0, it points to <code>master</code> which
+then points to A0.  This is shown in the output of <code>git lol</code>; a single commit,
+with a hash that we'll represent by A0, that is pointed to by branch <code>master</code>.
+<code>HEAD</code> in turns points to <code>master</code>.</p>
+<p>It's important to understand the difference between when <code>HEAD</code> pointing to
+<code>master</code> which points to A0, and when both <code>HEAD</code> and <code>master</code> point to A0
+separately.  We can get to the latter state by:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git checkout $</span><span style="color:#bf616a;">A0 </span><span style="color:#65737e;"># This will use the last commit above.
+</span><span style="color:#c0c5ce;">$ git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c32f318 (HEAD, master) </span><span style="color:#bf616a;">A0
+</span></code></pre>
+<p><code>git checkout</code> roughly means &quot;move <code>HEAD</code> to the given place, and change the
+filesystem to match <code>HEAD</code>.&quot;
+Notice that when you did the checkout, you got a scary message about being in
+'detached HEAD' state.  Many people are afraid of this cryptic message, but you now
+know what it means.  We can easily escape it by typing <code>git checkout master</code>,
+which puts us back in our earlier, safer, state.  Do that now:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git checkout master
+</span></code></pre><h2 id="branching">Branching<a class="zola-anchor" href="#branching" aria-label="Anchor link for: branching">🔗</a></h2>
+<p>Let's add to our file.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> echo &#39;</span><span style="color:#a3be8c;">A1</span><span style="color:#c0c5ce;">&#39; &gt;&gt; a.txt </span><span style="color:#65737e;"># Add the line &#39;A1&#39;; make sure you have double brackets!
+</span><span style="color:#c0c5ce;">$ git commit a.txt</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">A1</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">[master</span><span style="color:#c0c5ce;"> 0c5a853] A1
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 0c5a853 (HEAD -&gt; master) </span><span style="color:#bf616a;">A1
+*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>The order means that A0 is the parent of A1.
+Notice that <code>master</code> has moved up to the new commit A1, dragging <code>HEAD</code> up with
+it.  Had we been in the 'detached HEAD' mode above when we made our commit,
+our graph would look like:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">$ git lol
+* 0c5a853 (HEAD) A1
+* c32f318 (master) A0
+</span></code></pre>
+<p>In this case, if we committed in the detached <code>HEAD</code> state, we would have
+left branch <code>master</code> behind.  Being on a branch means the branch moves with us.</p>
+<p>Now let's experiment with branching!</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git branch dev
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git branch
+  </span><span style="color:#bf616a;">dev
+*</span><span style="color:#c0c5ce;"> master
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 0c5a853 (HEAD -&gt; master, dev) </span><span style="color:#bf616a;">A1
+*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>The first command makes a branch, pointed at our current commit, and the second
+command shows the branches, putting an <code>*</code> before the branch <code>HEAD</code> is pointing
+to.  Notice that in the log, we see that both <code>master</code> and <code>dev</code> point to A1,
+and <code>HEAD</code> points to <code>master</code>.</p>
+<p>Now let's switch branches:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git checkout dev
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git branch
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> dev
+  </span><span style="color:#bf616a;">master
+$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 0c5a853 (HEAD -&gt; dev, master) </span><span style="color:#bf616a;">A1
+*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p><code>HEAD</code> is now pointing to branch <code>dev</code>.</p>
+<p>Now let's make another commit:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> echo &#39;</span><span style="color:#a3be8c;">B2</span><span style="color:#c0c5ce;">&#39; &gt; b.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git add b.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git commit</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">B2</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 4e7b4c1 (HEAD -&gt; dev) </span><span style="color:#bf616a;">B2
+*</span><span style="color:#c0c5ce;"> 0c5a853 (master) </span><span style="color:#bf616a;">A1
+*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>Checking <code>git lol</code> shows three commits; the most recent we'll call B2.
+Notice <code>master</code> is still pointed at A1, while <code>dev</code> (and <code>HEAD</code>) is pointed
+at B2.  Let's go back to master to see where we are:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git checkout master
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> ls
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 0c5a853 (HEAD -&gt; master) </span><span style="color:#bf616a;">A1
+*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>Notice that there is only the file <code>a.txt</code>, and the log only shows A1 and A0,
+which is what we expect.  When we are
+pointing at a commit, we can only get information about its ancestors, not
+its descendants.  This is an important enough point that we'll put it in
+bold: <strong>A commit knows everything about its ancestors, and nothing about
+its descendants</strong> <sup class="footnote-reference"><a href="#garbage-collection">2</a></sup>.</p>
+<p>We can see the graph with all the branches by</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lola
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 4e7b4c1 (dev) </span><span style="color:#bf616a;">B2
+*</span><span style="color:#c0c5ce;"> 0c5a853 (HEAD -&gt; master) </span><span style="color:#bf616a;">A1
+*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>Let's make an additional commit on <code>master</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> echo &#39;</span><span style="color:#a3be8c;">A2</span><span style="color:#c0c5ce;">&#39; &gt; a.txt
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git commit a.txt</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">A2</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 93f50b6 (HEAD -&gt; master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> 0c5a853 A1
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>We can see how <code>master</code> and <code>dev</code> relate:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lola
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 93f50b6 (HEAD -&gt; master) </span><span style="color:#bf616a;">A2
+</span><span style="color:#c0c5ce;">| </span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 4e7b4c1 (dev) </span><span style="color:#bf616a;">B2
+</span><span style="color:#c0c5ce;">|</span><span style="color:#bf616a;">/
+*</span><span style="color:#c0c5ce;"> 0c5a853 A1
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>Our branches have diverged!  The parent of both A2 and B2 is A1, but A2 and B2
+don't know anything about each other.</p>
+<h2 id="merging">Merging<a class="zola-anchor" href="#merging" aria-label="Anchor link for: merging">🔗</a></h2>
+<p>How does merging fit into this picture?  Merging two branches makes a commit
+that has the tip of each branch as parents.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git merge dev
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;">   eb328ca (HEAD -&gt; master) </span><span style="color:#bf616a;">A3
+</span><span style="color:#c0c5ce;">|\
+| </span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 4e7b4c1 (dev) </span><span style="color:#bf616a;">B2
+* </span><span style="color:#c0c5ce;">| </span><span style="color:#bf616a;">93f50b6</span><span style="color:#c0c5ce;"> A2
+|</span><span style="color:#bf616a;">/
+*</span><span style="color:#c0c5ce;"> 0c5a853 A1
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>Notice that <code>dev</code> is still pointing to B2, but <code>master</code> now points to a commit
+A3 that has both A2 and B2 as parents.  Now that <code>dev</code> has been merged into
+<code>master</code>, <code>master</code> knows all about <code>dev</code> and its history.</p>
+<p>What's up with <code>dev</code>?</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git checkout dev
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 4e7b4c1 (HEAD -&gt; dev) </span><span style="color:#bf616a;">B2
+*</span><span style="color:#c0c5ce;"> 0c5a853 A1
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git merge master
+</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;"> git lol
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;">   eb328ca (HEAD -&gt; dev, master) </span><span style="color:#bf616a;">A3
+</span><span style="color:#c0c5ce;">|\
+| </span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 4e7b4c1 B2
+</span><span style="color:#bf616a;">* </span><span style="color:#c0c5ce;">| </span><span style="color:#bf616a;">93f50b6</span><span style="color:#c0c5ce;"> A2
+|</span><span style="color:#bf616a;">/
+*</span><span style="color:#c0c5ce;"> 0c5a853 A1
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>Notice that this merge didn't make a new commit, it just moved <code>dev</code> to point
+at A3; this is called a 'fast-forward' merge.  This is another very important
+point: <strong>By default, if a merge can be accomplished by moving a branch to an
+existing commit that satisfies the merge, it will do this.</strong></p>
+<p>You can also add the <code>--no-ff</code> flag to a merge, which forces it to not
+fast-forward.  Had we done that, the commits would be</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;">   d85fcb6 (HEAD -&gt; dev) </span><span style="color:#bf616a;">B3
+</span><span style="color:#c0c5ce;">|\
+| </span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;">   eb328ca (master) </span><span style="color:#bf616a;">A3
+</span><span style="color:#c0c5ce;">| |\
+| |</span><span style="color:#bf616a;">/
+</span><span style="color:#c0c5ce;">|</span><span style="color:#bf616a;">/</span><span style="color:#c0c5ce;">|
+</span><span style="color:#bf616a;">* </span><span style="color:#c0c5ce;">| </span><span style="color:#bf616a;">4e7b4c1</span><span style="color:#c0c5ce;"> B2
+| </span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> 93f50b6 A2
+|</span><span style="color:#bf616a;">/
+*</span><span style="color:#c0c5ce;"> 0c5a853 A1
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c32f318 A0
+</span></code></pre>
+<p>This makes the commit tree more complex, but keeps an explicit record of the
+merge.</p>
+<h2 id="conclusion">Conclusion<a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">🔗</a></h2>
+<p>Now you understand, at a commit level, what's happening when you branch and
+merge.  It might be fruitful to experiment with committing, branching,
+merging, detaching <code>HEAD</code>, <code>git reset</code>, and more, checking with <code>git lol</code> and
+<code>git lola</code> to see the commit tree.</p>
+<h3 id="footnotes">Footnotes<a class="zola-anchor" href="#footnotes" aria-label="Anchor link for: footnotes">🔗</a></h3>
+<div class="footnote-definition" id="commit-blobs"><sup class="footnote-definition-label">1</sup>
+<p>Commits are made up of blobs and trees, which are more fundamental, but
+we'll not go down to that level.</p>
+</div>
+<div class="footnote-definition" id="garbage-collection"><sup class="footnote-definition-label">2</sup>
+<p>In fact, a commit that has nothing pointing to it is
+considered garbage, and will be cleaned up and deleted by git in about 30 days.</p>
+</div>
+
+    </div>
+
+    
+    
+
+    <div class="post-footer">
+        
+            
+                <div class="post-tags">
+                    
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags&#x2F;git&#x2F;">#git</a>
+                    
+                </div>
+            
+            
+                <div class="post-nav">
+                    
+                    
+                        <a class="next" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;git-reset&#x2F;">Git Reset ›</a>
+                    
+                    
+                    
+                </div>
+            
+
+        
+
+    </div>
+
+    
+    
+</article>
+
+
+                </div>
+            </main>
+
+            
+            
+        </div>
+
+      
+          <script type="text/javascript" src="https:&#x2F;&#x2F;jagill.github.io&#x2F;even.js" ></script>
+      
+    </body>
+
+</html>

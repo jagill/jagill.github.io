@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://jagill.github.io/sitemap.xml

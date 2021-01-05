@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Journeyman&#x27;s Guides - Presto Joins</title>
+
+      
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="https://jagill.github.io/atom.xml">
+      
+
+      
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
+          
+      
+
+      
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;site.css">
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;custom.css">
+          
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="container">
+
+            <div id="mobile-navbar" class="mobile-navbar">
+              <div class="mobile-header-logo">
+                <a href="/" class="logo">Journeyman&#x27;s Guides</a>
+              </div>
+              <div class="mobile-navbar-icon icon-out">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <nav id="mobile-menu" class="mobile-menu slideout-menu slideout-menu-left">
+              <ul class="mobile-menu-list">
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io">
+                            Home
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                            Categories
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                            Tags
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                            About
+                        </a>
+                    </li>
+                
+              </ul>
+            </nav>
+
+            <header id="header">
+                <div class="logo"><a href="https:&#x2F;&#x2F;jagill.github.io">Journeyman&#x27;s Guides</a></div>
+                <nav class="menu">
+                    <ul>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io">
+                                    Home
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                                    Categories
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                                    Tags
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                                    About
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </nav>
+            </header>
+
+            <main>
+                <div class="content" id="mobile-panel">
+                    
+
+
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+            <ul>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-joins/#basic-joins" class="toc-link">Basic Joins</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-joins/#broadcast-joins" class="toc-link">Broadcast Joins</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-joins/#partitioned-joins" class="toc-link">Partitioned Joins</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-joins/#skew" class="toc-link">Skew</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-joins/#inner-vs-outer-joins" class="toc-link">Inner vs Outer Joins</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-joins/#join-predicates-and-push-downs" class="toc-link">Join Predicates and Push Downs</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-joins/#cross-joins" class="toc-link">Cross Joins</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-joins/#chained-joins" class="toc-link">Chained Joins</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<article class="post">
+    
+    <header class="post__header">
+        <h1 class="post__title">
+            <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-joins&#x2F;">Presto Joins</a>
+        </h1>
+        <div class="post__meta">
+            <span class="post__time">2018-05-04</span>
+            
+        </div>
+    </header>
+
+    <div class="post-content">
+      <p>Joining two database tables is one of the harder operations to make
+performant. They are also foundational to most analytical queries. Let's talk
+about how Presto performs joins, the choices it makes, and how to make your
+<code>JOIN</code> queries more efficient.</p>
+<span id="continue-reading"></span>
+<p>In Presto, most joins are done by making a hash table of the right-hand table
+(called the <em>build table</em>), and streaming the left-hand table (called the
+<em>prop table</em>) through this map.  It joins those pairs of the left and right
+tables that satisfy the join condition specified in the <code>ON</code> clause.</p>
+<p>First we'll look at inner joins, in which rows are joined by an <em>equijoin</em>
+condition.  Equijoins are one or more equalities between columns in the left and
+right table, like <code>ON customer.id = order.customer_id</code>.  The columns matched
+act as a <em>join key</em>, which we'll use to distribute the join operation. We'll
+then expand our discussion to various sorts of outer joins, and other join
+conditions.</p>
+<p><em>NB: Many optimizations and implementation details are left out of this
+discussion, to focus on the core principles.</em></p>
+<p>This is part 4 of 5 of a series on Presto:</p>
+<ol>
+<li><a href="https://jagill.github.io/presto-overview/" title="Presto Overview">Presto Overview</a></li>
+<li><a href="https://jagill.github.io/presto-connectors/" title="Presto Connectors">Presto Connectors</a></li>
+<li><a href="https://jagill.github.io/presto-map-reduce/" title="Presto Map-Reduce">Presto Map-Reduce</a></li>
+<li><a href="https://jagill.github.io/presto-joins/" title="Presto Joins">Presto Joins</a></li>
+<li><a href="https://jagill.github.io/presto-data-flow/" title="Presto Data Flow">Presto Data-Flow</a></li>
+</ol>
+<h2 id="basic-joins">Basic Joins<a class="zola-anchor" href="#basic-joins" aria-label="Anchor link for: basic-joins">🔗</a></h2>
+<p>Let's take a basic example.  Assume we have two tables,
+<code>cities (city_name, country_iso2)</code> and <code>countries (country_name, iso2)</code>, and the
+query</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT</span><span style="color:#c0c5ce;"> city_name, country_name
+</span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> cities
+</span><span style="color:#b48ead;">JOIN</span><span style="color:#c0c5ce;"> countries
+ON </span><span style="color:#d08770;">cities</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">country_iso2 </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">countries</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">iso2
+</span></code></pre>
+<p>Conceptually, Presto will take <code>countries</code> and build a hash table</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">iso2 -&gt; [ROW(country_name, iso2), ...]
+</span></code></pre>
+<p>mapping the join key to the list of right-hand rows with that key. Iterating
+through <code>cities</code>, it will look up the country rows via the join key
+<code>country_iso2</code>, yielding a combined row
+<code>ROW(cities.city_name, cities.country_iso2, countries.country_name, countries.iso2)</code>.</p>
+<p>To do this, <em>Presto keeps the build table in memory</em>.  This is why it's important
+to <em>put the smaller table on the right</em>.</p>
+<p>In the example above, the build hashtable has only one row in the entry for
+each value of the <code>iso2</code> join key.  Multiple cities per country are in the
+stream, and each matches in turn.  If there were more than one build hashtable
+entry per <code>iso2</code>, each matching left-hand row would iterate through the list of
+build rows for join key, yielding multiple joined rows.  Hence this method can
+support One-to-One, Many-to-One, One-to-Many, and Many-to-Many joins.</p>
+<h2 id="broadcast-joins">Broadcast Joins<a class="zola-anchor" href="#broadcast-joins" aria-label="Anchor link for: broadcast-joins">🔗</a></h2>
+<p>If your right table can fit in memory on one machine, you can do this one one
+machine.  If the streaming table isn't too large, this will even finish
+quickly.  However, if your streaming table has billions of rows, it would take
+a long time, but can be easily sped up via parallelization.  If each worker
+machine has a copy of the build table, then the input streaming rows can be
+easily split across machines, each machine working independently.  This is
+called a <em>broadcast join</em>, because the build table is &quot;broadcasted&quot; across the
+workers.  If the build table is much smaller than the prop table, this is
+extremely fast and efficient, but requires the build table to be able to
+fit into memory.</p>
+<p><img src="/BroadcastJoin.svg" alt="Broadcast Join Diagram" title="Broadcast Join Diagram" /></p>
+<h2 id="partitioned-joins">Partitioned Joins<a class="zola-anchor" href="#partitioned-joins" aria-label="Anchor link for: partitioned-joins">🔗</a></h2>
+<p>If the build table cannot fit onto a single machine, we need to split it across
+the workers.  This requires us to make sure we stream the rows with a given
+join key to workers that have the portion of the build table with that same join
+key.  If we have <code>N</code> workers, we can do this by hashing the join key, and
+putting the entry with <code>hash(join_key) % N == k</code> on worker <code>k</code>.  We direct the
+streaming rows in the same fashion, which ensures the build table rows with a
+given join key get matched with all streaming rows of the same key.</p>
+<p><img src="/PartitionedJoin.svg" alt="Partitioned Join Diagram" title="Partitioned Join Diagram" /></p>
+<h2 id="skew">Skew<a class="zola-anchor" href="#skew" aria-label="Anchor link for: skew">🔗</a></h2>
+<p>In the example above, some countries likely have more cities than others.  So
+even if the countries are evenly split amongst the workers, some workers will have
+many more rows than others.  Since the query must wait until the slowest worker
+is complete, this will take longer than if the cities were evenly distributed.
+This phenomenon is termed <em>skew</em>.  Another cause of skew is if there is some
+special value of the join key that has a vastly disproportionate number of
+rows; like <code>null</code> for a nullable column.</p>
+<h2 id="inner-vs-outer-joins">Inner vs Outer Joins<a class="zola-anchor" href="#inner-vs-outer-joins" aria-label="Anchor link for: inner-vs-outer-joins">🔗</a></h2>
+<p>If a streaming row does not find a match with a join key, it can either be
+dropped (Inner Join), put passed through with <code>null</code> fields instead of the
+matching right-hand fields (Left Outer Join).</p>
+<p>In the case of a Right or Full Outer Join, a set of all matched right rows is
+kept by each worker; at the end unmatched right rows are yielded with <code>null</code>
+fields instead of the left-hand fields.</p>
+<p>This procedure for Right or Full Outer Joins is hard to do if multiple workers
+have the same build-side join key: a given worker might not find a match, but
+it doesn't know if another worker has found a match.  This would be the case in
+a Broadcast join, so specifying either of these will force a Partitioned Join.</p>
+<h2 id="join-predicates-and-push-downs">Join Predicates and Push Downs<a class="zola-anchor" href="#join-predicates-and-push-downs" aria-label="Anchor link for: join-predicates-and-push-downs">🔗</a></h2>
+<p>So far, we've only talked about equijoins, but any predicate can be placed in
+the <code>ON</code> query.  There are, in general, three types of predicates:</p>
+<ul>
+<li><strong>Equijoin predicates</strong>: Matching a column in the left table with a column in
+the right table, e.g. <code>table1.a = table2.b</code>.</li>
+<li><strong>Single-table predicates</strong>: A condition that applies to only one of the two
+tables, e.g. <code>table1.c &lt; 10</code>.</li>
+<li><strong>Complex predicates</strong>: Any other condition, generally of the form
+<code>f(table1, table2)</code>.</li>
+</ul>
+<p>Equijoins, if present, allow the hash table join we described above.
+Single-table predicates are <em>pushed down</em> and applied as a filter to the
+individual tables before the join.  Complex predicates have to be applied as the
+rows are being joined.</p>
+<p>If the join is an inner join, Presto tries to further optimize by pushing down
+applicable predicates in the <code>WHERE</code> clause.  For example, the following
+statements are equivalent:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">e</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">f
+</span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> t1 </span><span style="color:#b48ead;">CROSS JOIN</span><span style="color:#c0c5ce;"> t2
+</span><span style="color:#b48ead;">WHERE </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">b
+  </span><span style="color:#c0c5ce;">AND </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">c </span><span style="color:#c0c5ce;">&lt; </span><span style="color:#d08770;">10
+  </span><span style="color:#c0c5ce;">AND </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">d </span><span style="color:#c0c5ce;">= &#39;</span><span style="color:#a3be8c;">a</span><span style="color:#c0c5ce;">&#39;
+</span></code></pre>
+<p>and</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">e</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">f
+</span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> (
+  </span><span style="color:#b48ead;">SELECT</span><span style="color:#c0c5ce;"> a, e
+  </span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> t1
+  </span><span style="color:#b48ead;">WHERE</span><span style="color:#c0c5ce;"> c &lt; </span><span style="color:#d08770;">10
+</span><span style="color:#c0c5ce;">) t1
+</span><span style="color:#b48ead;">JOIN</span><span style="color:#c0c5ce;"> (
+  </span><span style="color:#b48ead;">SELECT</span><span style="color:#c0c5ce;"> b, f
+  </span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> t2
+  </span><span style="color:#b48ead;">WHERE</span><span style="color:#c0c5ce;"> d = &#39;</span><span style="color:#a3be8c;">a</span><span style="color:#c0c5ce;">&#39;
+) t2
+ON </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">b
+</span></code></pre>
+<p>Since for outer joins a row that does not match any predicate is yielded (filled
+with <code>null</code>s), <em>WHERE-clause predicate pushdown does not happen for outer joins</em>.</p>
+<h2 id="cross-joins">Cross Joins<a class="zola-anchor" href="#cross-joins" aria-label="Anchor link for: cross-joins">🔗</a></h2>
+<p><em>Cross Joins</em> join every row of the left table with every row of the right
+table.  Because of this reason, they cannot use Partitioned Joins, and so must
+be a Broadcast Join.  This can easily result in an Out Of Memory error if the
+build table is large.  Instead of the hash-table lookup, the join is a
+<em>Nested Loop Join</em>, in which the streaming table is iterated over, and each
+streaming row loops over each build table row.  This quickly becomes inefficient
+if the build table is large.</p>
+<p>Since a cross join is a form of inner join, Presto pushes down predicates in the
+<code>WHERE</code> clause.  If these include equijoins, it converts the join to a
+(non-cross) inner join, and any single-table predicates will filter the joined
+tables.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">b
+</span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> t1, t2
+</span><span style="color:#b48ead;">WHERE </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">c </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">d
+  </span><span style="color:#c0c5ce;">AND </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">e </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">1
+  </span><span style="color:#c0c5ce;">AND </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a </span><span style="color:#c0c5ce;">&lt; </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">b
+</span></code></pre>
+<p>is equivalent to</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">b
+</span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> t1
+</span><span style="color:#b48ead;">JOIN</span><span style="color:#c0c5ce;"> (
+  </span><span style="color:#b48ead;">SELECT</span><span style="color:#c0c5ce;"> b, d
+  </span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> t2
+  </span><span style="color:#b48ead;">WHERE </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">e </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">1
+</span><span style="color:#c0c5ce;">) t2
+ON </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">c </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">d
+</span><span style="color:#b48ead;">WHERE </span><span style="color:#d08770;">t1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a </span><span style="color:#c0c5ce;">&lt; </span><span style="color:#d08770;">t2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">b
+</span></code></pre><h2 id="chained-joins">Chained Joins<a class="zola-anchor" href="#chained-joins" aria-label="Anchor link for: chained-joins">🔗</a></h2>
+<p>A Chained Join is multiple joins in a row:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT </span><span style="color:#bf616a;">*
+</span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> table1
+</span><span style="color:#b48ead;">JOIN</span><span style="color:#c0c5ce;"> table2 ON </span><span style="color:#d08770;">table1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">table2</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a
+</span><span style="color:#b48ead;">JOIN</span><span style="color:#c0c5ce;"> table3 ON </span><span style="color:#d08770;">table1</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">table3</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">a
+</span></code></pre>
+<p>Presto will do the joins one at a time.  First <code>table1</code> with <code>table2</code>, then the
+resultant table with <code>table3</code>, and so on.</p>
+
+    </div>
+
+    
+    
+
+    <div class="post-footer">
+        
+            
+                <div class="post-tags">
+                    
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags&#x2F;presto&#x2F;">#presto</a>
+                    
+                </div>
+            
+            
+                <div class="post-nav">
+                    
+                        <a class="previous" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-map-reduce&#x2F;">‹ Presto Map Reduce</a>
+                    
+                    
+                        <a class="next" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-data-flow&#x2F;">Presto Data Flow ›</a>
+                    
+                    
+                    
+                </div>
+            
+
+        
+
+    </div>
+
+    
+    
+</article>
+
+
+                </div>
+            </main>
+
+            
+            
+        </div>
+
+      
+          <script type="text/javascript" src="https:&#x2F;&#x2F;jagill.github.io&#x2F;even.js" ></script>
+      
+    </body>
+
+</html>

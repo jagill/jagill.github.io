@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Journeyman&#x27;s Guides - Presto Connectors</title>
+
+      
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="https://jagill.github.io/atom.xml">
+      
+
+      
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
+          
+      
+
+      
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;site.css">
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;custom.css">
+          
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="container">
+
+            <div id="mobile-navbar" class="mobile-navbar">
+              <div class="mobile-header-logo">
+                <a href="/" class="logo">Journeyman&#x27;s Guides</a>
+              </div>
+              <div class="mobile-navbar-icon icon-out">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <nav id="mobile-menu" class="mobile-menu slideout-menu slideout-menu-left">
+              <ul class="mobile-menu-list">
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io">
+                            Home
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                            Categories
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                            Tags
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                            About
+                        </a>
+                    </li>
+                
+              </ul>
+            </nav>
+
+            <header id="header">
+                <div class="logo"><a href="https:&#x2F;&#x2F;jagill.github.io">Journeyman&#x27;s Guides</a></div>
+                <nav class="menu">
+                    <ul>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io">
+                                    Home
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                                    Categories
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                                    Tags
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                                    About
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </nav>
+            </header>
+
+            <main>
+                <div class="content" id="mobile-panel">
+                    
+
+
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+            <ul>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-connectors/#presto-storage-model" class="toc-link">Presto Storage Model</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-connectors/#connectors" class="toc-link">Connectors</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-connectors/#delegating-predicates" class="toc-link">Delegating Predicates</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-connectors/#federated-queries" class="toc-link">Federated Queries</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-connectors/#writing-output" class="toc-link">Writing output</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<article class="post">
+    
+    <header class="post__header">
+        <h1 class="post__title">
+            <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-connectors&#x2F;">Presto Connectors</a>
+        </h1>
+        <div class="post__meta">
+            <span class="post__time">2018-05-02</span>
+            
+        </div>
+    </header>
+
+    <div class="post-content">
+      <p>Presto is a SQL query engine, one that ultimately understands how to consume one
+or more input streams of rows and produce an output stream of rows.  At its
+core, it doesn't understand things like datastores, disk IO, primary keys, and
+partitions.  To be practically useful, it needs to be able to connect to
+datastores, which it does via <em>connectors</em>.  A connector is specific to a
+particular datastore (say, MySQL, Hive, Cassandra, etc), and is what understands
+concepts such as disk IO, partitions, etc.</p>
+<span id="continue-reading"></span>
+<p>This is part 2 of 5 of a series on Presto:</p>
+<ol>
+<li><a href="https://jagill.github.io/presto-overview/" title="Presto Overview">Presto Overview</a></li>
+<li><a href="https://jagill.github.io/presto-connectors/" title="Presto Connectors">Presto Connectors</a></li>
+<li><a href="https://jagill.github.io/presto-map-reduce/" title="Presto Map-Reduce">Presto Map-Reduce</a></li>
+<li><a href="https://jagill.github.io/presto-joins/" title="Presto Joins">Presto Joins</a></li>
+<li><a href="https://jagill.github.io/presto-data-flow/" title="Presto Data Flow">Presto Data-Flow</a></li>
+</ol>
+<h2 id="presto-storage-model">Presto Storage Model<a class="zola-anchor" href="#presto-storage-model" aria-label="Anchor link for: presto-storage-model">🔗</a></h2>
+<p>While Presto doesn't know about datastores, it has a set of abstractions that it
+expects a connector to respect.</p>
+<ul>
+<li><strong>Row</strong>: A row is a named tuple, and is the basic unit of data.</li>
+<li><strong>Split</strong>: A split is one or more rows, yielded as a unit for performance.  A
+table will contain one or more splits.</li>
+<li><strong>Table</strong>: A table is the basic storage concept in Presto.  They consist of
+a number of (unordered) rows grouped into one or more splits.  They are
+familar concepts in SQL databases and Hive, although they can be applied to
+CSV files or anything else that can generate rows.</li>
+<li><strong>Schema</strong>: Collections of tables are grouped into schemas.  A schema is
+equivalent to a database in the SQL or Hive world, but it could also be a
+directory of CSV files.  Anything that can be a logical collection of
+tables can be a schema.</li>
+<li><strong>Catalog</strong>: A catalog is a collection of schemas.  A database cluster is
+an example.  Each catalog has one connector, so the schemas must be of the
+same datastore type.</li>
+</ul>
+<p>A warehouse that had both MySQL and Hive clusters would need (at minimum) two
+catalogs, one for MySQL and one for Hive.  While each catalog has one connector,
+it's possible that two catalogs can use the same connector type to access the
+same datastore type. Consider the case where there are separate clusters for
+user-facing MySQL databases and warehouse MySQL databases.  You could make two
+catalogs, <code>user-mysql</code> and <code>warehouse-mysql</code>, each of which uses the MySQL
+connector, initialized with different parameters.</p>
+<p>A fully-qualified table name is of the form <code>{catalog}.{schema}.{table}</code>, like
+<code>hive.warehouse.dim_orders</code> or <code>mysql.user_data.addresses</code>.  A given Presto
+session can set default catalogs and schemas, allowing just the table name to be
+used.</p>
+<h2 id="connectors">Connectors<a class="zola-anchor" href="#connectors" aria-label="Anchor link for: connectors">🔗</a></h2>
+<p>When Presto wants data from a table, it looks up the connector specified for the
+catalog.  The connector is specific to a given datasource, for example the MySQL
+connector or the Hive connector.</p>
+<p>A table is grouped into data chunks called <em>splits</em>.  Presto queries the
+connector, which reports how many splits are available.  This is used to plan
+the query and determine parallelization.  The connector reads the table, sending
+the splits to the appropriate workers to be processed.</p>
+<h2 id="delegating-predicates">Delegating Predicates<a class="zola-anchor" href="#delegating-predicates" aria-label="Anchor link for: delegating-predicates">🔗</a></h2>
+<p>The most naive connector would read the entire table, yielding all splits.
+However, if the query has filter predicates like <code>WHERE country = 'DE'</code>, Presto
+can <em>delegate</em> the predicate to the connector.  The connector can filter these
+rows before sending them to the workers, reducing unneeded network IO and
+computation.  Futhermore, if the connector has understanding of things such as
+primary keys, indices, partitions, etc, it can use the optimizations build into
+the datastore to be even more efficient.</p>
+<p>One effect of this is that two conditions that might be logically equivalent may
+be result in dramatically different performance.  If the predicate is of a form
+that is understood by the connector, it can do the work before Presto ever sees
+the unwanted rows.</p>
+<p>Presto pushes down all the viable predicates (generally just equalities) to the
+connector.  The connector's use of them is best effort; it must return a
+superset of the results that would pass the where clause, but it may return any
+superset. Thus, Presto will apply the predicates again to all rows it receives.</p>
+<h2 id="federated-queries">Federated Queries<a class="zola-anchor" href="#federated-queries" aria-label="Anchor link for: federated-queries">🔗</a></h2>
+<p>A very important consequence of the connector model is that Presto treats all
+rows equally, for any datasource.  In particular, this means that a single query
+can get rows from different databases, or even different data sources (MySQL and
+Hive, for example).</p>
+<p>In Presto, it's possible to do the following query, which reads from two
+different data sources, and writes to a different database.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">INSERT INTO </span><span style="color:#d08770;">mysql</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">metrics</span><span style="color:#c0c5ce;">.ranking
+  customer_id,
+  customer_ranking,
+  </span><span style="color:#b48ead;">date
+SELECT
+  </span><span style="color:#d08770;">mysql_customers</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">customer_id </span><span style="color:#c0c5ce;">AS customer_id,
+  </span><span style="color:#d08770;">hive_customers</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">customer_ranking </span><span style="color:#c0c5ce;">AS customer_ranking,
+  </span><span style="color:#96b5b4;">current_date</span><span style="color:#c0c5ce;">() AS </span><span style="color:#b48ead;">date
+FROM
+  </span><span style="color:#d08770;">hive</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">warehouse</span><span style="color:#c0c5ce;">.customer_statistics AS hive_customers
+</span><span style="color:#b48ead;">JOIN
+  </span><span style="color:#d08770;">mysql</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">users</span><span style="color:#c0c5ce;">.customers AS mysql_customers
+ON </span><span style="color:#d08770;">mysql_customers</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">customer_id </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">hive_customers</span><span style="color:#c0c5ce;">.</span><span style="color:#d08770;">customer_id
+</span></code></pre><h2 id="writing-output">Writing output<a class="zola-anchor" href="#writing-output" aria-label="Anchor link for: writing-output">🔗</a></h2>
+<p>Commonly, the results of a query are inserted into another table with an
+<code>INSERT INTO</code> statement.  Presto will stream its output rows into the output
+connector, which is responsible for writing the data in a format appropriate to
+the datastore.  Similar to the comment on federated queries above, the output
+connector can be from a different catalog (and thus different data source) than
+the input connector(s).  This makes Presto a very efficient way to scrape or
+replicate tables between different data sources.</p>
+
+    </div>
+
+    
+    
+
+    <div class="post-footer">
+        
+            
+                <div class="post-tags">
+                    
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags&#x2F;presto&#x2F;">#presto</a>
+                    
+                </div>
+            
+            
+                <div class="post-nav">
+                    
+                        <a class="previous" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-overview&#x2F;">‹ Presto Overview</a>
+                    
+                    
+                        <a class="next" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-map-reduce&#x2F;">Presto Map Reduce ›</a>
+                    
+                    
+                    
+                </div>
+            
+
+        
+
+    </div>
+
+    
+    
+</article>
+
+
+                </div>
+            </main>
+
+            
+            
+        </div>
+
+      
+          <script type="text/javascript" src="https:&#x2F;&#x2F;jagill.github.io&#x2F;even.js" ></script>
+      
+    </body>
+
+</html>

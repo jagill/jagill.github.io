@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Journeyman&#x27;s Guides - Git Remote Branches</title>
+
+      
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="https://jagill.github.io/atom.xml">
+      
+
+      
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
+          
+      
+
+      
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;site.css">
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;custom.css">
+          
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="container">
+
+            <div id="mobile-navbar" class="mobile-navbar">
+              <div class="mobile-header-logo">
+                <a href="/" class="logo">Journeyman&#x27;s Guides</a>
+              </div>
+              <div class="mobile-navbar-icon icon-out">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <nav id="mobile-menu" class="mobile-menu slideout-menu slideout-menu-left">
+              <ul class="mobile-menu-list">
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io">
+                            Home
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                            Categories
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                            Tags
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                            About
+                        </a>
+                    </li>
+                
+              </ul>
+            </nav>
+
+            <header id="header">
+                <div class="logo"><a href="https:&#x2F;&#x2F;jagill.github.io">Journeyman&#x27;s Guides</a></div>
+                <nav class="menu">
+                    <ul>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io">
+                                    Home
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                                    Categories
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                                    Tags
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                                    About
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </nav>
+            </header>
+
+            <main>
+                <div class="content" id="mobile-panel">
+                    
+
+
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+            <ul>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-remote/#remote-repositories" class="toc-link">Remote Repositories</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-remote/#multiple-branches" class="toc-link">Multiple Branches</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-remote/#multiple-remotes" class="toc-link">Multiple Remotes</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/git-remote/#summary" class="toc-link">Summary</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<article class="post">
+    
+    <header class="post__header">
+        <h1 class="post__title">
+            <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;git-remote&#x2F;">Git Remote Branches</a>
+        </h1>
+        <div class="post__meta">
+            <span class="post__time">2017-03-03</span>
+            
+        </div>
+    </header>
+
+    <div class="post-content">
+      <p>Git's power is in collaboration, and that comes from remote branches.
+Everyone's used a remote branch, but juggling multiple remotes and keeping
+local and remote branches in sync can be challenging. Here, we explain how
+remote branches work, how to manage them effectively, and how to set one up
+yourself.</p>
+<span id="continue-reading"></span>
+<p>We assume you understand local <a href="https://jagill.github.io/git-remote/git-dag.md">git commits</a>. Now let's talk
+about remote branches, which is how we unlock the power of distributed
+version control. There are a couple important concepts that we will talk more
+about later, but the terminology of local and remote branches and repos can
+be a bit confusing, so let's introduce them now:</p>
+<ul>
+<li><strong>Local repository</strong>: This is a git repo on your local machine -- it's what
+you get when you clone another repo.</li>
+<li><strong>Local branch</strong>: A local branch is the branch you are used to. It lives
+in your local repo (on your machine), and you can commit to it via the normal
+workflow.</li>
+<li><strong>Remote repository</strong>: A remote repository (usually just called <em>remote</em>) is a
+repository different than your local repository that your local repo is
+tracking.  It may have local branches, just like your local repo.  You can
+pull from a remote repo, which will bring the local branches of the remote
+repo into the remote branches of your local repo (we'll explain that later).</li>
+<li><strong>Remote branch</strong>: A remote branch is a local copy of a branch on a remote
+repo. It will be shown in <code>git branch --all</code> as <code>REMOTE/BRANCH</code>.  These
+track the local branches of remote repos.</li>
+</ul>
+<p><strong>NB</strong>: We've abbreviated the output of the <code>fetch</code> and <code>push</code> subcommands
+for clarity.</p>
+<h2 id="remote-repositories">Remote Repositories<a class="zola-anchor" href="#remote-repositories" aria-label="Anchor link for: remote-repositories">🔗</a></h2>
+<p>Every git repo -- including the local one on your machine -- is a complete
+repo, with all the commit history back to the root commit.  This includes the
+branches (which are just pointers to a given commit).  The branches consist
+of at least <code>master</code>, but often several others.  A fundamental operation in
+git is to clone a repository, which makes a local repository by copying all of
+the commit history from another repository (eg, one on GitHub).  Usually this
+&quot;remote&quot; repo is on another machine, but you can clone any repo with a valid
+git URL, including one on your own machine.  We'll do that for the tutorial,
+but normally this repo would be somewhere else.  Let's make the &quot;remote&quot; repo.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">tmp/</span><span style="color:#c0c5ce;"> $ mkdir git-remote
+</span><span style="color:#bf616a;">tmp/</span><span style="color:#c0c5ce;"> $ cd git-remote
+</span><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ git init</span><span style="color:#bf616a;"> --bare</span><span style="color:#c0c5ce;"> remote
+</span><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ ls
+</span><span style="color:#bf616a;">remote/
+</span></code></pre>
+<p>We've created a special kind of repo called a &quot;bare&quot; (or &quot;headless&quot;) repo.
+It does not have a <code>HEAD</code> pointer, so it's not a place you can directly
+do work or commit to, but it can get commits from other places (as we will
+do shortly).</p>
+<p>Now let's clone it to a &quot;local&quot; repo.  This will make a &quot;downstream&quot; repo; one
+that will track the changes in the &quot;upstream&quot; (remote) repo.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ git clone remote local1
+</span><span style="color:#bf616a;">Cloning</span><span style="color:#c0c5ce;"> into &#39;</span><span style="color:#a3be8c;">local1</span><span style="color:#c0c5ce;">&#39;...
+</span><span style="color:#b48ead;">done</span><span style="color:#c0c5ce;">.
+</span><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ ls
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;">  remote/
+</span></code></pre>
+<p>In the <code>git clone</code> command, <code>remote</code> is the URL of the &quot;parent&quot; repo (in this
+case, just a directory), and <code>local1</code> is the path of the local repo.  Notice
+that it makes a directory named <code>local1</code>.  Let's make a commit and push it to
+the remote.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ cd local1
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ echo &#39;</span><span style="color:#a3be8c;">A1</span><span style="color:#c0c5ce;">&#39; &gt; a.txt
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git add a.txt
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git commit</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">A1</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+cdf451e</span><span style="color:#c0c5ce;"> (HEAD -&gt; master) </span><span style="color:#bf616a;">A1
+local1/</span><span style="color:#c0c5ce;"> $ git push
+</span><span style="color:#bf616a;">To</span><span style="color:#c0c5ce;"> /tmp/git-remote/remote
+ </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">new branch</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;">      master -&gt; master
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> cdf451e (HEAD -&gt; master, origin/master) </span><span style="color:#bf616a;">A1
+</span></code></pre>
+<p>Note that after we pushed, a new branch appeared, <code>origin/master</code>.  This is a
+<code>remote</code> branch, which tracks a local branch on a remote repository.
+What happened in the remote repo?</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ cd ../remote
+</span><span style="color:#bf616a;">remote/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+cdf451e</span><span style="color:#c0c5ce;"> (HEAD -&gt; master) </span><span style="color:#bf616a;">A1
+</span></code></pre>
+<p>The commit is now in the remote branch, as is the <code>master</code> branch.  Let's clone
+it to a new local branch.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">remote/</span><span style="color:#c0c5ce;"> $ cd ..
+</span><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ git clone remote local2
+</span><span style="color:#bf616a;">Cloning</span><span style="color:#c0c5ce;"> into &#39;</span><span style="color:#a3be8c;">local2</span><span style="color:#c0c5ce;">&#39;...
+</span><span style="color:#b48ead;">done</span><span style="color:#c0c5ce;">.
+</span><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ cd local2
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> cdf451e (HEAD -&gt; master, origin/master, origin/HEAD) </span><span style="color:#bf616a;">A1
+</span></code></pre>
+<p>The new repo has all the commits that the remote repo has.  Let's make a change
+here, and see what happens on <code>local1</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ echo A2 &gt;&gt; a.txt
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git commit a.txt</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">A2</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#bf616a;">[master</span><span style="color:#c0c5ce;"> c65a734] A2
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git push
+</span><span style="color:#bf616a;">To</span><span style="color:#c0c5ce;"> /tmp/git-remote/remote
+   </span><span style="color:#bf616a;">cdf451e..c65a734</span><span style="color:#c0c5ce;">  master -&gt; master
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ cd ../remote
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c65a734 (HEAD -&gt; master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span><span style="color:#bf616a;">remote/</span><span style="color:#c0c5ce;"> $ cd ../local1
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> cdf451e (HEAD -&gt; master, origin/master) </span><span style="color:#bf616a;">A1
+</span></code></pre>
+<p>While the changes are in the <code>remote</code> repo, they are not yet in <code>local1</code>.  We
+can <code>fetch</code> these changes:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git fetch
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> c65a734 (origin/master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e (HEAD -&gt; master) </span><span style="color:#bf616a;">A1
+</span></code></pre>
+<p>Now we have the new commit, but our local <code>master</code> doesn't point to it.  We see
+the remote branch <code>origin/master</code> points to the new commit; we can <code>merge</code> that
+into our local <code>master</code>:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git merge origin/master
+</span><span style="color:#bf616a;">Updating</span><span style="color:#c0c5ce;"> cdf451e..c65a734
+</span><span style="color:#bf616a;">Fast-forward
+ a.txt </span><span style="color:#c0c5ce;">| </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> +
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> c65a734 (HEAD -&gt; master, origin/master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span></code></pre>
+<p>Now our branches, as well as our commits, are the same on <code>local1</code> and <code>local2</code>.
+Since this operation is performed so frequently, there's a shortcut command for
+it: <code>git pull</code>.  It will perform a <code>git fetch</code>, then a
+<code>git merge origin/CURRENT_BRANCH</code>.  If your current branch doesn't have a
+remote tracking branch, it will return an error.</p>
+<p>The <code>fetch</code>/<code>merge</code>/<code>pull</code> distinction is an important one, so we'll emphasize
+it here:</p>
+<ul>
+<li><code>git fetch</code> fetches all the commits from the remote repo to the local repo,
+and updates the remote branches.</li>
+<li><code>git merge</code> can merge a remote branch into a local one.</li>
+<li><code>git pull</code> is a shortcut that fetches and then merges a remote tracking branch
+into the current local one.</li>
+</ul>
+<h2 id="multiple-branches">Multiple Branches<a class="zola-anchor" href="#multiple-branches" aria-label="Anchor link for: multiple-branches">🔗</a></h2>
+<p>One common point of confusion arises when people want to push a local branch to
+a remote repo.  Conceptually, you often want to create a new branch on <code>origin</code>
+with the same name as your local branch, and have your local branch track this
+branch.  The default option in git does not do this, which sometimes leads to
+confusion.  Let's do it the wrong way first.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git checkout</span><span style="color:#bf616a;"> -b</span><span style="color:#c0c5ce;"> dev
+</span><span style="color:#bf616a;">Switched</span><span style="color:#c0c5ce;"> to a new branch &#39;</span><span style="color:#a3be8c;">dev</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ echo B1 &gt; b.txt
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git add b.txt
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git commit</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">B1</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#bf616a;">[dev</span><span style="color:#c0c5ce;"> ade622a] B1
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+ </span><span style="color:#bf616a;">create</span><span style="color:#c0c5ce;"> mode 100644 b.txt
+
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git branch</span><span style="color:#bf616a;"> -vv </span><span style="color:#65737e;"># This should any upstream branches
+</span><span style="color:#c0c5ce;">* dev    ade622a
+  </span><span style="color:#bf616a;">master</span><span style="color:#c0c5ce;"> c65a734 </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">origin/master</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;"> A2
+
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git push
+</span><span style="color:#bf616a;">fatal:</span><span style="color:#c0c5ce;"> The current branch dev has no upstream branch.
+</span><span style="color:#bf616a;">To</span><span style="color:#c0c5ce;"> push the current branch and set the remote as upstream, use
+
+    </span><span style="color:#bf616a;">git</span><span style="color:#c0c5ce;"> push</span><span style="color:#bf616a;"> --set-upstream</span><span style="color:#c0c5ce;"> origin dev
+
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git push origin dev </span><span style="color:#65737e;"># Notice we did not include --set-upstream
+</span><span style="color:#c0c5ce;">To /tmp/git-remote/remote
+ </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">new branch</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;">      dev -&gt; dev
+
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git pull
+</span><span style="color:#bf616a;">There</span><span style="color:#c0c5ce;"> is no tracking information for the current branch.
+</span><span style="color:#bf616a;">Please</span><span style="color:#c0c5ce;"> specify which branch you want to merge with.
+</span><span style="color:#bf616a;">See</span><span style="color:#c0c5ce;"> git-pull(1) </span><span style="color:#b48ead;">for</span><span style="color:#c0c5ce;"> details
+
+    </span><span style="color:#bf616a;">git</span><span style="color:#c0c5ce;"> pull &lt;remote&gt; &lt;branch&gt;
+
+If you wish to set tracking information for this branch you can do so with:
+
+    </span><span style="color:#bf616a;">git</span><span style="color:#c0c5ce;"> branch</span><span style="color:#bf616a;"> --set-upstream-to</span><span style="color:#c0c5ce;">=origin/&lt;branch&gt; dev
+
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git branch</span><span style="color:#bf616a;"> -vv </span><span style="color:#65737e;"># Notice still no upstream branch
+</span><span style="color:#c0c5ce;">* dev    ade622a
+  </span><span style="color:#bf616a;">master</span><span style="color:#c0c5ce;"> c65a734 </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">origin/master</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;"> A2
+
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git push</span><span style="color:#bf616a;"> --set-upstream</span><span style="color:#c0c5ce;"> origin dev
+</span><span style="color:#bf616a;">Branch</span><span style="color:#c0c5ce;"> dev set up to track remote branch dev from origin.
+
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git branch</span><span style="color:#bf616a;"> -vv </span><span style="color:#65737e;"># There&#39;s the upstream branch!
+</span><span style="color:#c0c5ce;">* dev    ade622a </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">origin/dev</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;"> B1
+  </span><span style="color:#bf616a;">master</span><span style="color:#c0c5ce;"> c65a734 </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">origin/master</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;"> A2
+
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git pull
+</span><span style="color:#bf616a;">Already</span><span style="color:#c0c5ce;"> up-to-date.
+</span></code></pre>
+<p>Notice that we can't push without arguments, because git does not know what to
+do with this new branch.  We can tell it specifically which remote and which branch
+to push to, but unless we tell it to set that remote branch as an upstream
+tracking branch, it doesn't know that we want to keep those branches in sync.</p>
+<p>As a side note, <code>git branch [-v, --v]</code> is a useful tool to display what git knows
+about your branches.</p>
+<p>Now that the <code>dev</code> is tracking <code>origin/dev</code>, commits by either local repo can
+be transferred to the other.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ cd ../local2
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git branch</span><span style="color:#bf616a;"> -a
+*</span><span style="color:#c0c5ce;"> master
+  </span><span style="color:#bf616a;">remotes/origin/HEAD</span><span style="color:#c0c5ce;"> -&gt; origin/master
+  </span><span style="color:#bf616a;">remotes/origin/master
+local2/</span><span style="color:#c0c5ce;"> $ git fetch
+</span><span style="color:#bf616a;">From</span><span style="color:#c0c5ce;"> /Users/jag/tmp/git-remote2/remote
+ </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">new branch</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;">      dev        -&gt; origin/dev
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git branch</span><span style="color:#bf616a;"> -a
+*</span><span style="color:#c0c5ce;"> master
+  </span><span style="color:#bf616a;">remotes/origin/HEAD</span><span style="color:#c0c5ce;"> -&gt; origin/master
+  </span><span style="color:#bf616a;">remotes/origin/dev
+  remotes/origin/master
+local2/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> ade622a (origin/dev) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> c65a734 (HEAD -&gt; master, origin/master, origin/HEAD) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git checkout dev
+</span><span style="color:#bf616a;">Branch</span><span style="color:#c0c5ce;"> dev set up to track remote branch dev from origin.
+</span><span style="color:#bf616a;">Switched</span><span style="color:#c0c5ce;"> to a new branch &#39;</span><span style="color:#a3be8c;">dev</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> ade622a (HEAD -&gt; dev, origin/dev) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> c65a734 (origin/master, origin/HEAD, master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span></code></pre>
+<p>Now we can work on branch <code>dev</code> in <code>local2</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ echo B2 &gt;&gt; b.txt
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git commit b.txt</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">B2</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">[dev</span><span style="color:#c0c5ce;"> 73a9efd] B2
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git push
+</span><span style="color:#bf616a;">To</span><span style="color:#c0c5ce;"> /Users/jag/tmp/git-remote2/remote
+   </span><span style="color:#bf616a;">ade622a..73a9efd</span><span style="color:#c0c5ce;">  dev -&gt; dev
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ cd ../local1
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> ade622a (HEAD -&gt; dev, origin/dev) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> c65a734 (origin/master, master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git pull
+</span><span style="color:#bf616a;">From</span><span style="color:#c0c5ce;"> /Users/jag/tmp/git-remote2/remote
+   </span><span style="color:#bf616a;">ade622a..73a9efd</span><span style="color:#c0c5ce;">  dev        -&gt; origin/dev
+</span><span style="color:#bf616a;">Updating</span><span style="color:#c0c5ce;"> ade622a..73a9efd
+</span><span style="color:#bf616a;">Fast-forward
+ b.txt </span><span style="color:#c0c5ce;">| </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> +
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> 73a9efd (HEAD -&gt; dev, origin/dev) </span><span style="color:#bf616a;">B2
+*</span><span style="color:#c0c5ce;"> ade622a (origin/temp) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> c65a734 (origin/master, master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span></code></pre>
+<p>Now people working in two different local branches can coordinate through a
+remote branch.</p>
+<h2 id="multiple-remotes">Multiple Remotes<a class="zola-anchor" href="#multiple-remotes" aria-label="Anchor link for: multiple-remotes">🔗</a></h2>
+<p>The flow we just described is called the 'centralized' workflow, because
+all commits are going through a single, central, remote repository.  However,
+git was designed first and foremost to be a distributed system, allowing
+people to manage commits from many remotes.</p>
+<p>One of the main ways that people use this is for pull requests.  If someone
+wishes to contribute to your repository, they will often fork it, push changes
+to their remote repository, and let you review the changes before you decide
+to merge them into your branch.  Let's do that for our two users, <code>local1</code>
+and <code>local2</code>.</p>
+<p>First let's create and set up another remote, called <code>remote2</code>.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ cd ..
+</span><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ git clone</span><span style="color:#bf616a;"> --bare</span><span style="color:#c0c5ce;"> remote/ remote2/
+</span><span style="color:#bf616a;">Cloning</span><span style="color:#c0c5ce;"> into bare repository &#39;</span><span style="color:#a3be8c;">remote2</span><span style="color:#c0c5ce;">&#39;...
+</span><span style="color:#b48ead;">done</span><span style="color:#c0c5ce;">.
+</span><span style="color:#bf616a;">git-remote/</span><span style="color:#c0c5ce;"> $ cd local2
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git remote
+</span><span style="color:#bf616a;">origin
+local2/</span><span style="color:#c0c5ce;"> $ git remote add remote2 ../remote2
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git remote
+</span><span style="color:#bf616a;">origin
+remote2
+local2/</span><span style="color:#c0c5ce;"> $ git fetch remote2 </span><span style="color:#65737e;"># fetch by default uses origin
+</span><span style="color:#c0c5ce;">From ../remote2
+ </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">new branch</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;">      dev        -&gt; remote2/dev
+ </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">new branch</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;">      master     -&gt; remote2/master
+</span></code></pre>
+<p>We've cloned another remote off of our original remote repository, and added it
+as a remote for <code>local2</code>.  Let's push a change to the <code>dev</code> branch of <code>remote2</code>,
+so that <code>local1</code> can review the changes.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git checkout dev
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ echo B3 &gt;&gt; b.txt
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git commit b.txt</span><span style="color:#bf616a;"> -m </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">B3</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">[dev</span><span style="color:#c0c5ce;"> c992ab9] B3
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git push remote2 dev
+</span><span style="color:#bf616a;">To</span><span style="color:#c0c5ce;"> ../remote2
+   </span><span style="color:#bf616a;">73a9efd..c992ab9</span><span style="color:#c0c5ce;">  dev -&gt; dev
+</span><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> c992ab9 (HEAD -&gt; dev, remote2/dev) </span><span style="color:#bf616a;">B3
+*</span><span style="color:#c0c5ce;"> 73a9efd (origin/dev) </span><span style="color:#bf616a;">B2
+*</span><span style="color:#c0c5ce;"> ade622a B1
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c65a734 (remote2/master, origin/master, origin/HEAD, master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span></code></pre>
+<p>Notice that we have remote branches for both remote repos.  When we pushed, we
+needed to explicitly set the remote and the branch to push to, because the
+local branch <code>dev</code> is set to track <code>origin/dev</code>, which is supplied as a default
+if we just use <code>git push</code>.  Since we don't want to push to the default, we need
+to be explicit.</p>
+<p>Let's go to <code>local1</code> and pull these changes to another branch, review the diffs,
+and merge them.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local2/</span><span style="color:#c0c5ce;"> $ cd ../local1
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git remote add remote2 ../remote2
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git fetch remote2
+</span><span style="color:#bf616a;">From</span><span style="color:#c0c5ce;"> ../remote2
+ </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">new branch</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;">      dev        -&gt; remote2/dev
+ </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">new branch</span><span style="color:#b48ead;">]</span><span style="color:#c0c5ce;">      master     -&gt; remote2/master
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git log</span><span style="color:#bf616a;"> --oneline --decorate --all
+*</span><span style="color:#c0c5ce;"> c992ab9 (remote2/dev) </span><span style="color:#bf616a;">B3
+*</span><span style="color:#c0c5ce;"> 73a9efd (HEAD -&gt; dev, origin/dev) </span><span style="color:#bf616a;">B2
+*</span><span style="color:#c0c5ce;"> ade622a (origin/temp) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> c65a734 (remote2/master, origin/master, master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span></code></pre>
+<p>So now we have the new code in the remote branch <code>remote2/dev</code>.  Let's make
+a branch that tracks it, so that we can see the changes.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git branch dev2 remote2/dev
+</span><span style="color:#bf616a;">Branch</span><span style="color:#c0c5ce;"> dev2 set up to track remote branch dev from remote2.
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git lola
+</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> c992ab9 (remote2/dev, dev2) </span><span style="color:#bf616a;">B3
+*</span><span style="color:#c0c5ce;"> 73a9efd (HEAD -&gt; dev, origin/dev) </span><span style="color:#bf616a;">B2
+*</span><span style="color:#c0c5ce;"> ade622a (origin/temp) </span><span style="color:#bf616a;">B1
+*</span><span style="color:#c0c5ce;"> c65a734 (remote2/master, origin/master, master) </span><span style="color:#bf616a;">A2
+*</span><span style="color:#c0c5ce;"> cdf451e A1
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git checkout dev2
+</span><span style="color:#bf616a;">Switched</span><span style="color:#c0c5ce;"> to branch &#39;</span><span style="color:#a3be8c;">dev2</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">Your</span><span style="color:#c0c5ce;"> branch is up-to-date with &#39;</span><span style="color:#a3be8c;">remote2/dev</span><span style="color:#c0c5ce;">&#39;.
+</span></code></pre>
+<p>First, we create a local branch <code>dev2</code> which tracks the remote branch <code>remote2/dev</code>, and then checked it out.  If we wanted to modify it
+and push those changes upstream, we could.  Or, we can merge it into
+our local version of <code>dev</code>, and push those changes upstream to
+<code>origin/dev</code>:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git checkout dev
+</span><span style="color:#bf616a;">Switched</span><span style="color:#c0c5ce;"> to branch &#39;</span><span style="color:#a3be8c;">dev</span><span style="color:#c0c5ce;">&#39;
+</span><span style="color:#bf616a;">Your</span><span style="color:#c0c5ce;"> branch is up-to-date with &#39;</span><span style="color:#a3be8c;">origin/dev</span><span style="color:#c0c5ce;">&#39;.
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git merge dev2
+</span><span style="color:#bf616a;">Updating</span><span style="color:#c0c5ce;"> 73a9efd..c992ab9
+</span><span style="color:#bf616a;">Fast-forward
+ b.txt </span><span style="color:#c0c5ce;">| </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> +
+ </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;"> file changed, 1 insertion(+)
+</span><span style="color:#bf616a;">local1/</span><span style="color:#c0c5ce;"> $ git push
+</span><span style="color:#bf616a;">To</span><span style="color:#c0c5ce;"> /Users/jag/tmp/git-remote2/remote
+   </span><span style="color:#bf616a;">73a9efd..c992ab9</span><span style="color:#c0c5ce;">  dev -&gt; dev
+</span></code></pre>
+<p>Now these changes can be seen by <code>local2</code>, as normal.</p>
+<h2 id="summary">Summary<a class="zola-anchor" href="#summary" aria-label="Anchor link for: summary">🔗</a></h2>
+<p>We've seen that each repo is a complete record of the codebase.  Local repos
+are where people make modifications, and remote repos are places that changes
+can be distributed to others.  The most common model is the centralized model,
+where everyone shares a single remote repo.  Another model is distributed, and
+in the extreme case every person has their own remote repo that they can push
+changes to, and that others can pull from.</p>
+<p>A local repo has both local branches, and remote branches which track the
+&quot;local&quot; branches of the remote repos.  A branch can &quot;track&quot; another branch,
+which means when the upstream (tracked) has changes, &quot;pull&quot; will merge
+those changes into the downstream (tracking) branch, and a &quot;push&quot; will merge
+changes from the downstream branch to the upstream.</p>
+
+    </div>
+
+    
+    
+
+    <div class="post-footer">
+        
+            
+                <div class="post-tags">
+                    
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags&#x2F;git&#x2F;">#git</a>
+                    
+                </div>
+            
+            
+                <div class="post-nav">
+                    
+                        <a class="previous" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;git-reset&#x2F;">‹ Git Reset</a>
+                    
+                    
+                        <a class="next" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;python-generators&#x2F;">Python Generators ›</a>
+                    
+                    
+                    
+                </div>
+            
+
+        
+
+    </div>
+
+    
+    
+</article>
+
+
+                </div>
+            </main>
+
+            
+            
+        </div>
+
+      
+          <script type="text/javascript" src="https:&#x2F;&#x2F;jagill.github.io&#x2F;even.js" ></script>
+      
+    </body>
+
+</html>

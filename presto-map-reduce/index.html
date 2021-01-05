@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Journeyman&#x27;s Guides - Presto Map Reduce</title>
+
+      
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="https://jagill.github.io/atom.xml">
+      
+
+      
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
+          
+      
+
+      
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;site.css">
+          <link rel="stylesheet" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;custom.css">
+          
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="container">
+
+            <div id="mobile-navbar" class="mobile-navbar">
+              <div class="mobile-header-logo">
+                <a href="/" class="logo">Journeyman&#x27;s Guides</a>
+              </div>
+              <div class="mobile-navbar-icon icon-out">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <nav id="mobile-menu" class="mobile-menu slideout-menu slideout-menu-left">
+              <ul class="mobile-menu-list">
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io">
+                            Home
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                            Categories
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                            Tags
+                        </a>
+                    </li>
+                
+                    <li class="mobile-menu-item">
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                            About
+                        </a>
+                    </li>
+                
+              </ul>
+            </nav>
+
+            <header id="header">
+                <div class="logo"><a href="https:&#x2F;&#x2F;jagill.github.io">Journeyman&#x27;s Guides</a></div>
+                <nav class="menu">
+                    <ul>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io">
+                                    Home
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;categories">
+                                    Categories
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags">
+                                    Tags
+                                </a>
+                            </li>
+                        
+                            <li>
+                                <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;about">
+                                    About
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </nav>
+            </header>
+
+            <main>
+                <div class="content" id="mobile-panel">
+                    
+
+
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+            <ul>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-map-reduce/#mapping-operations" class="toc-link">Mapping Operations</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-map-reduce/#reducing-operations" class="toc-link">Reducing Operations</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-map-reduce/#intermediate-representation-example" class="toc-link">Intermediate Representation Example</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="https://jagill.github.io/presto-map-reduce/#sorting-operations" class="toc-link">Sorting Operations</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<article class="post">
+    
+    <header class="post__header">
+        <h1 class="post__title">
+            <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-map-reduce&#x2F;">Presto Map Reduce</a>
+        </h1>
+        <div class="post__meta">
+            <span class="post__time">2018-05-03</span>
+            
+        </div>
+    </header>
+
+    <div class="post-content">
+      <p>Viewed from afar, the query engine consumes one or more input streams of rows,
+and produces a single output stream of rows.  In this note, we focus on the
+basic case where there is one input stream that gets converted to the output
+stream.  This is conceptually similar to the Map-Reduce paradigm, where rows get
+filtered, transformed, exploded, or aggregated into new rows.  For performance,
+Presto constructs these to be as parallelizable as possible.</p>
+<span id="continue-reading"></span>
+<p><em>NB: Many optimizations and implementation details are left out of this
+discussion, to focus on the core principles.</em></p>
+<p>This is part 3 of 5 of a series on Presto:</p>
+<ol>
+<li><a href="https://jagill.github.io/presto-overview/" title="Presto Overview">Presto Overview</a></li>
+<li><a href="https://jagill.github.io/presto-connectors/" title="Presto Connectors">Presto Connectors</a></li>
+<li><a href="https://jagill.github.io/presto-map-reduce/" title="Presto Map-Reduce">Presto Map-Reduce</a></li>
+<li><a href="https://jagill.github.io/presto-joins/" title="Presto Joins">Presto Joins</a></li>
+<li><a href="https://jagill.github.io/presto-data-flow/" title="Presto Data Flow">Presto Data-Flow</a></li>
+</ol>
+<h2 id="mapping-operations">Mapping Operations<a class="zola-anchor" href="#mapping-operations" aria-label="Anchor link for: mapping-operations">🔗</a></h2>
+<p>Mapping operations take a single row, and produce 0, 1, or many rows. These are
+very parallelizable -- since the operations takes only one row, you can simply
+split the rows among different workers.</p>
+<ul>
+<li>
+<p><strong>Filter</strong>: A filter operation takes a predicate and applies it to each row.
+If the predicate returns true it yields the row, otherwise it yields nothing.
+These correspond to <code>WHERE</code> and <code>HAVING</code> clauses.</p>
+</li>
+<li>
+<p><strong>Projection</strong>: A projection operation takes a map function and applies it to
+each row.  It yields the transformed row.  This can drop, rename, combine, or
+transform columns.  The column expression in the <code>SELECT</code> statement encodes
+the projection operation.</p>
+</li>
+<li>
+<p><strong>Unnest</strong>: An unnest operation takes a row, and yields <code>N</code> rows.  In
+Presto, this is from a <code>CROSS JOIN UNNEST</code> statement that will expand an array
+or map into rows for each entry.</p>
+</li>
+</ul>
+<p>Given a sequence of mapping operations, Presto combines them into a <em>fragment</em>.
+Multiple workers can perform this fragment, parallelizing the stream processing.</p>
+<p>For example, let's consider the table <code>orders</code>:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">| order_id  | all_item_quantities
++-----------+---------------------
+| order_id1 | MAP(ARRAY[price1, price2, ...], ARRAY[quantity1, quantity2, ...])
++-----------+---------------------
+| ...       | ...
+</span></code></pre>
+<p>and the query</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT</span><span style="color:#c0c5ce;"> order_id, item_quantity </span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;"> item_price AS item_total
+</span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> orders
+</span><span style="color:#b48ead;">CROSS JOIN</span><span style="color:#c0c5ce;"> UNNEST(all_item_quantities) AS t (item_price, item_quantity)
+</span><span style="color:#b48ead;">WHERE</span><span style="color:#c0c5ce;"> item_quantity &gt; </span><span style="color:#d08770;">1
+</span></code></pre>
+<p>The incoming rows would be of the form <code>ROW(order_id, all_item_quantities)</code>.
+Presto would first apply an unnest operator</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">r -&gt; ROW(order_id=r.order_id, item_price=price1, item_quantity=quantity1),
+     ROW(order_id=r.order_id, item_price=price2, item_quantity=quantity2),
+     ...
+</span></code></pre>
+<p>The produced rows would be of the form <code>ROW(order_id, item_price, item_quantity)</code>.
+Next, Presto will apply a filter operation with predicate</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">r -&gt; r.item_quantity &gt; 1
+</span></code></pre>
+<p>and then a map operation</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">r -&gt; ROW(order_id=r.order_id, item_total=r.item_quantity * r.item_price)
+</span></code></pre>
+<p>These operators would all be composed into a single fragment.</p>
+<h2 id="reducing-operations">Reducing Operations<a class="zola-anchor" href="#reducing-operations" aria-label="Anchor link for: reducing-operations">🔗</a></h2>
+<p>While mapping operations can be easily parallelized, reducing operations (like
+<code>GROUP BY</code>) require more effort to make efficient.  Luckily, Presto does most of
+this work.  This section will first describe the simple-but-inefficient method,
+and then successive optimizations that Presto does for us.</p>
+<p>If there is a <code>GROUP BY</code> clause, multiple rows (with the same group key) will be
+aggregated into one.  In the simplest case, where there are no aggregation
+functions (like <code>SUM()</code>, <code>COUNT()</code>, etc), the worker will just store the row in
+memory, yielding only one instance.  This is equivalent to <code>SELECT DISTINCT</code>.</p>
+<p>If there is an aggregation function, the worker must remember the current
+aggregation data.  The amount of data stored depends on the function; for some
+(like <code>SUM</code>) this is a single number, while for others (like <code>ARRAY_AGG</code>) it is
+a field for each row aggregated over.</p>
+<p>A non-efficient but correct model would be to partition the rows amongst workers
+using the hash of the group key; this ensures a mostly equal distribution, which
+all rows for a given key going to the same worker. This worker can then fully
+aggregate, knowing it has seen all the relevant rows.  However, using
+<em>partial aggregation</em> we can do this much more efficiently.</p>
+<p>Consider the following query:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT</span><span style="color:#c0c5ce;"> user_id, </span><span style="color:#96b5b4;">SUM</span><span style="color:#c0c5ce;">(order_amount) AS total_spent
+</span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> orders
+</span><span style="color:#b48ead;">GROUP BY</span><span style="color:#c0c5ce;"> user_id
+</span></code></pre>
+<p>Assume the first phase is split amongst two mapping workers <code>M1</code> and <code>M2</code>
+(perhaps <code>orders</code> is actually a complex subquery), and there are two grouping
+workers <code>G1</code> and <code>G2</code>, where <code>G1</code> will handle all odd <code>user_id</code>s and <code>G2</code> will
+handle all even <code>user_id</code>s.  The inefficient way would be for each mapping
+worker to send each row to either <code>G1</code> or <code>G2</code>, depending on the <code>user_id</code>.
+However, <code>M1</code> and <code>M2</code> could locally store a hash table <code>{user_id: partial_sum}</code>.  Then, once they have consumed all the rows, they can send these
+partial sums to the appropriate grouping worker.  This is far less data than
+sending the individual rows!  <code>G1</code> and <code>G2</code> can then do a simple sum of the
+partial sums for each <code>user_id</code> they get.</p>
+<p>Futhermore, the mapping workers don't have to wait until they have consumed all
+rows; they can send partial sums whenever they are running low on memory! The
+grouping workers will get a (relatively slow) stream of partial sums, which they
+will aggregate to the final sums.</p>
+<p>Often, a more complex function can be made partially aggregable with an
+intermediate representation.  Consider the arithmetic mean operator <code>avg</code>.
+Presto cannot simply average different slice of data and then average the
+averages. Instead, Presto partially aggregates into a structure <code>{key:, sum:, count:}</code>, and then aggregates the partial aggregations.  Any function that can
+be represented in this way can be efficiently aggregated in parallel.</p>
+<h2 id="intermediate-representation-example">Intermediate Representation Example<a class="zola-anchor" href="#intermediate-representation-example" aria-label="Anchor link for: intermediate-representation-example">🔗</a></h2>
+<p>Consider another example: <code>SELECT COUNT(DISTINCT x)</code>.  The naive method would be
+to have a single node at the end, collecting all values of <code>x</code> into a set, then
+evaluating the size of the set.  The first optimization is that the upstream
+worker nodes could maintain their own partial set.  The final node would union
+all these sets, returning the size as above.  Although parallelizable, the
+storage requirements still scale as <code>O(num_outputs)</code>.</p>
+<p>Presto implements <code>COUNT(DISTINCT X)</code> as</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#b48ead;">SELECT </span><span style="color:#96b5b4;">COUNT</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">*</span><span style="color:#c0c5ce;">) </span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> (
+  </span><span style="color:#b48ead;">SELECT</span><span style="color:#c0c5ce;"> x
+  </span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> t
+  </span><span style="color:#b48ead;">GROUP BY</span><span style="color:#c0c5ce;"> x
+)
+</span></code></pre>
+<p>With this, Presto partitions the inner query across workers by hashing <code>x</code>.
+Each worker stores the set of distinct <code>x</code> for a partition, counts it, then
+passes the count to the final aggregator.  While the total storage is still
+<code>O(num_outputs)</code>, it's distributed over many machines.</p>
+<p>However, if a small approximation is acceptable, vastly more performant options
+are available.  The function <code>approx_distinct</code> uses a fast, constant-space,
+and parallelizable intermediate representation called
+<a href="https://en.wikipedia.org/wiki/HyperLogLog">HyperLogLog</a>.
+Each upstream worker node can accumate their intermediate representation, and
+the final node can combine these to the final estimate.</p>
+<h2 id="sorting-operations">Sorting Operations<a class="zola-anchor" href="#sorting-operations" aria-label="Anchor link for: sorting-operations">🔗</a></h2>
+<p>SQL also has the <code>ORDER BY</code> clause.  In the current implementation, by default
+the merge is performed on a single worker.  This may lead to a OOM error for
+large datasets.  Distributed merge can be enabled by the <code>distributed_sort</code>
+session parameter.  In distributed sort, each worker sorts a part of the data
+and sends it to a worker for a final merge sort.</p>
+
+    </div>
+
+    
+    
+
+    <div class="post-footer">
+        
+            
+                <div class="post-tags">
+                    
+                        <a href="https:&#x2F;&#x2F;jagill.github.io&#x2F;tags&#x2F;presto&#x2F;">#presto</a>
+                    
+                </div>
+            
+            
+                <div class="post-nav">
+                    
+                        <a class="previous" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-connectors&#x2F;">‹ Presto Connectors</a>
+                    
+                    
+                        <a class="next" href="https:&#x2F;&#x2F;jagill.github.io&#x2F;presto-joins&#x2F;">Presto Joins ›</a>
+                    
+                    
+                    
+                </div>
+            
+
+        
+
+    </div>
+
+    
+    
+</article>
+
+
+                </div>
+            </main>
+
+            
+            
+        </div>
+
+      
+          <script type="text/javascript" src="https:&#x2F;&#x2F;jagill.github.io&#x2F;even.js" ></script>
+      
+    </body>
+
+</html>
